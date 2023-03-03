@@ -18,7 +18,7 @@ public class User {
     private String token;
 
     @Column
-    private int credit;
+    private double credit;
 
     public User() {
     }
@@ -53,11 +53,11 @@ public class User {
         this.token = token;
     }
 
-    public int getCredit() {
+    public double getCredit() {
         return credit;
     }
 
-    public void setCredit(int credit) {
+    public void setCredit(double credit) {
         this.credit = credit;
     }
 }

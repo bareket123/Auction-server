@@ -7,6 +7,7 @@ import com.dev.utils.Persist;
 import com.dev.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.dev.utils.Errors.*;
@@ -76,8 +77,24 @@ public class LoginController {
         basicResponse.setErrorCode(errorCode);
         return basicResponse;
     }
+    @RequestMapping(value = "get-users-size" , method = RequestMethod.GET)
+      public int getUsersSize(){
+        return persist.getAllUsers().size();
+    }
+    @RequestMapping(value = "get-open-auction-size" , method = RequestMethod.GET)
+    public int getOpenAuctionSize(){
+        return persist.getAuctionsByStatus(true).size();
+    }
 
+    @RequestMapping(value = "get-close-auction-size" , method = RequestMethod.GET)
+    public int getCloseAuctionSize(){
+        return persist.getAuctionsByStatus(false).size();
+    }
 
+    @RequestMapping(value = "get-all-sale-offers-size" , method = RequestMethod.GET)
+    public int getAllSaleOffersSize(){
+        return persist.getAllSaleOffers().size();
+    }
 
 
 }

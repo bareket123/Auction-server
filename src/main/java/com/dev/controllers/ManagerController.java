@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
 import java.util.List;
 import static com.dev.utils.Errors.*;
 
@@ -19,11 +21,7 @@ public class ManagerController {
 
 
 
-    @RequestMapping (value = "/get-open-auctions",method = RequestMethod.GET)
-    public List<Auction> getOpenAuction(){
-        return persist.getAuctionsByStatus(true);
 
-    }
 
     @RequestMapping (value = "/update-credits",method = RequestMethod.POST)
     public BasicResponse updateCredits(String token,int updatedCredits){
@@ -38,6 +36,23 @@ public class ManagerController {
 
         return basicResponse;
 
+    }
+    @RequestMapping(value = "/get-open-auction-by-token", method = RequestMethod.GET)
+    public List<Auction> getOpenAuctionByToken (String token) {
+        User user = persist.getUserByToken(token);
+        List<Auction> openAuction = persist.getAuctionsByStatus(true) ;
+        List<Auction> openAuctionByUser = new ArrayList<>() ;
+        for (Auction auction : openAuction )
+        {  if (auction.getSubmitUser().equals(user)) {
+            openAuctionByUser.add(auction) ;
+        }
+
+        }
+        return openAuctionByUser;
+    }
+    @RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
+    public List<User> getAllUsers(){
+        return persist.getAllUsers();
     }
 
 

@@ -3,6 +3,7 @@ package com.dev.utils;
 
 import com.dev.objects.Auction;
 import com.dev.objects.Message;
+import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,11 +21,11 @@ public class Persist {
     private final SessionFactory sessionFactory;
 
     @Autowired
-    public Persist (SessionFactory sf) {
+    public Persist(SessionFactory sf) {
         this.sessionFactory = sf;
     }
 
-    public User getUserByUsername (String username) {
+    public User getUserByUsername(String username) {
         User found = null;
         Session session = sessionFactory.openSession();
         found = (User) session.createQuery("FROM User WHERE username = :username")
@@ -34,15 +35,14 @@ public class Persist {
         return found;
     }
 
-    public void saveUser (User user) {
+    public void saveUser(User user) {
         Session session = sessionFactory.openSession();
         session.save(user);
         session.close();
     }
 
 
-
-    public User getUserByUsernameAndToken (String username, String token) {
+    public User getUserByUsernameAndToken(String username, String token) {
         User found = null;
         Session session = sessionFactory.openSession();
         found = (User) session.createQuery("FROM User WHERE username = :username " +
@@ -54,14 +54,14 @@ public class Persist {
         return found;
     }
 
-    public List<User> getAllUsers () {
+    public List<User> getAllUsers() {
         Session session = sessionFactory.openSession();
         List<User> allUsers = session.createQuery("FROM User ").list();
         session.close();
         return allUsers;
     }
 
-    public User getUserByToken (String token) {
+    public User getUserByToken(String token) {
         Session session = sessionFactory.openSession();
         User user = (User) session.createQuery("From User WHERE token = :token")
                 .setParameter("token", token)
@@ -71,9 +71,7 @@ public class Persist {
     }
 
 
-
-
-    public User getUserById (int id) {
+    public User getUserById(int id) {
         Session session = sessionFactory.openSession();
         User user = (User) session.createQuery("FROM User WHERE id = :id")
                 .setParameter("id", id)
@@ -82,12 +80,52 @@ public class Persist {
         return user;
     }
 
-    public List<Auction> getAuctionsByStatus (boolean isOpen){
-        Session session=sessionFactory.openSession();
-        List<Auction> auctions=session.createQuery("from Auction where isOpen= :isOpen").setParameter("isOpen",isOpen).list();
+    public List<Auction> getAuctionsByStatus(boolean isOpen) {
+        Session session = sessionFactory.openSession();
+        List<Auction> auctions = session.createQuery("from Auction where isOpen= :isOpen").setParameter("isOpen", isOpen).list();
+        session.close();
         return auctions;
 
     }
 
+    public List<SaleOffer> getAllSaleOffers() {
+        Session session = sessionFactory.openSession();
+        List<SaleOffer> saleOffers = session.createQuery("from SaleOffer").list();
+        session.close();
+        return saleOffers;
 
+    }
+
+    public void addNewAuction(Auction auction) {
+        Session session = sessionFactory.openSession();
+        session.save(auction);
+        session.close();
+    }
+
+    public Auction getAuctionByID(int id) {
+        Session session = sessionFactory.openSession();
+        Auction wantedAuction = (Auction) session.createQuery("From Auction WHERE id=:id").setParameter("id", id).uniqueResult();
+        session.close();
+        return wantedAuction;
+    }
+
+    public SaleOffer getOffersByID(int id) {
+        Session session = sessionFactory.openSession();
+        SaleOffer offer = (SaleOffer) session.createQuery("From SaleOffer WHERE id=:id").setParameter("id", id).uniqueResult();
+        session.close();
+        return offer;
+    }
+
+    public void addNewOffer(SaleOffer saleOffer) {
+        Session session = sessionFactory.openSession();
+        session.save(saleOffer);
+        session.close();
+    }
+
+    public Auction getAuctionByProductID(int id) {
+        Session session = sessionFactory.openSession();
+        Auction wantedAuctionByProductID = (Auction) session.createQuery("From Auction WHERE product.id=:id").setParameter("id", id).uniqueResult();
+        session.close();
+        return wantedAuctionByProductID;
+    }
 }
