@@ -1,7 +1,7 @@
 package com.dev.objects;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -13,7 +13,7 @@ public class Auction {
     private int id;
 
     @Column
-    private Date openDate;
+    private String openDate;
     @Column
     private boolean isOpen;
     @ManyToOne
@@ -29,8 +29,9 @@ public class Auction {
     private Product product;
 
 
-    public Auction(Date openDate, boolean isOpen, User submitUser, int initialPrice, List<SaleOffer> saleOffers, Product product) {
-        this.openDate = openDate;
+    public Auction(boolean isOpen, User submitUser, int initialPrice, List<SaleOffer> saleOffers, Product product) {
+        MyDate currentDate=new MyDate(LocalDate.now().getDayOfMonth(),LocalDate.now().getMonth().getValue(),LocalDate.now().getYear());
+        this.openDate = String.valueOf(currentDate);
         this.isOpen = isOpen;
         this.submitUser = submitUser;
         this.initialPrice = initialPrice;
@@ -50,11 +51,11 @@ public class Auction {
         this.id = id;
     }
 
-    public Date getOpenDate() {
+    public String getOpenDate() {
         return openDate;
     }
 
-    public void setOpenDate(Date openDate) {
+    public void setOpenDate(String openDate) {
         this.openDate = openDate;
     }
 

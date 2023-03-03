@@ -1,6 +1,7 @@
 
 package com.dev.utils;
 
+import com.dev.objects.Auction;
 import com.dev.objects.Message;
 import com.dev.objects.User;
 import org.hibernate.Session;
@@ -81,6 +82,12 @@ public class Persist {
         return user;
     }
 
+    public List<Auction> getAuctionsByStatus (boolean isOpen){
+        Session session=sessionFactory.openSession();
+        List<Auction> auctions=session.createQuery("from Auction where isOpen= :isOpen").setParameter("isOpen",isOpen).list();
+        return auctions;
+
+    }
 
 
 }

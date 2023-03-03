@@ -52,4 +52,12 @@ public class User {
     public void setToken(String token) {
         this.token = token;
     }
+
+    public int getCredit() {
+        return credit;
+    }
+
+    public void setCredit(int credit) {
+        this.credit = credit;
+    }
 }
