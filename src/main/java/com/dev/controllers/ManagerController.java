@@ -2,6 +2,7 @@ package com.dev.controllers;
 
 import com.dev.objects.Auction;
 import com.dev.objects.User;
+import com.dev.responses.AllUsersResponse;
 import com.dev.responses.BasicResponse;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class ManagerController {
 
 
 
-
+// טבלה לא מתעדכנת אבל פונקציה עובדת- לבדוק
     @RequestMapping (value = "/update-credits",method = RequestMethod.POST)
     public BasicResponse updateCredits(String token,int updatedCredits){
         BasicResponse basicResponse;
@@ -51,11 +52,33 @@ public class ManagerController {
         return openAuctionByUser;
     }
     @RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
-    public List<User> getAllUsers(){
-        return persist.getAllUsers();
+    public AllUsersResponse getAllUsers(){
+        return new AllUsersResponse(true,null,persist.getAllUsers());
+    }
+    @RequestMapping(value = "get-all-auctions-by-token",method = {RequestMethod.GET})
+    public List<Auction> getAllAuctionByUser(String token){
+        return persist.getAuctionByUser(token);
+
     }
 
-
-
-
 }
+/*
+במחלקה - manageController
+שינינו את סוג הערך המוחזר מLIST לAllUsersResponse
+@RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
+public AllUsersResponse getAllUsers(){
+   return new AllUsersResponse(true,null,persist.getAllUsers());
+}
+
+בפונקציה updateCredit :
+אין שינוי בטבלת sql לאחר שינוי קרדיט.
+אבל הפונקציה כן עובדת רק הטבלה לא מתעדכנת .
+
+
+—איך אתן מקשרות מכרז למוצר?
+
+–להוסיף ל- product description   שדה של תיאור מוצר .
+
+–השדה בטבלה של auction  מכיל מוצר ולא שם מוצר.
+
+ */

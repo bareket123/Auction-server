@@ -12,7 +12,6 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
-
     @Column
     private LocalDate openDate;
     @Column
@@ -23,10 +22,10 @@ public class Auction {
     @Column
     private int initialPrice;
     @ManyToMany
-    @JoinColumn (name = "sales_offers")
+    @JoinColumn (name = "sales_offers_id")
     private List<SaleOffer> saleOffers;
     @ManyToOne
-    @JoinColumn (name = "name")
+    @JoinColumn (name= "product_id")
     private Product product;
 
 

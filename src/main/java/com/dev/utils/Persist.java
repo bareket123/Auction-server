@@ -128,4 +128,10 @@ public class Persist {
         session.close();
         return wantedAuctionByProductID;
     }
+    public List<Auction> getAuctionByUser (String token) {
+        Session session = sessionFactory.openSession();
+        List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
+        return allAuctionsByUsers;
+    }
+
 }

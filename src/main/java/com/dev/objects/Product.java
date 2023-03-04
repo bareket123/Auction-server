@@ -16,14 +16,17 @@ public class Product {
     @Column
     private String photo;
 
+    @Column
+    private String description;
+
     public Product(){
 
     }
 
-    public Product( String name, String photo) {
-
+    public Product(String name, String photo, String description) {
         this.name = name;
         this.photo = photo;
+        this.description = description;
     }
 
     public int getId() {
@@ -48,5 +51,13 @@ public class Product {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
