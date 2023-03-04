@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import static com.dev.utils.Errors.*;
+import static java.lang.Integer.parseInt;
 
 
 @RestController
@@ -31,6 +32,7 @@ public class ManagerController {
         if (user!=null){
             user.setCredit(updatedCredits);
             basicResponse=new BasicResponse(true,null);
+            // אין עדכון בטבלאת היוזרים
         }else {
             basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
         }
