@@ -24,7 +24,7 @@ public class ManagerController {
 
 
 
-    @RequestMapping (value = "/update-credits",method = {RequestMethod.GET,RequestMethod.POST})
+    @RequestMapping (value = "/update-credits",method = {RequestMethod.POST})
     public BasicResponse updateCredits(String token,int updatedCredits){
         BasicResponse basicResponse;
         User user= persist.getUserByToken(token);

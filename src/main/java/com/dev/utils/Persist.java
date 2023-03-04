@@ -143,6 +143,27 @@ public class Persist {
         transaction.commit();
 
     }
+    public void closeAuction(Auction auctionForClose){
+        Session session=sessionFactory.openSession();
+        Transaction transaction=session.beginTransaction();
+        if (auctionForClose!=null){
+            auctionForClose.setOpen(false);
+        }
+        session.saveOrUpdate(auctionForClose);
+        transaction.commit();
+
+    }
+    public void updateWinningBid(SaleOffer winningSaleOffer){
+        Session session=sessionFactory.openSession();
+        Transaction transaction=session.beginTransaction();
+        if (winningSaleOffer!=null){
+            winningSaleOffer.setWon(true);
+        }
+        session.saveOrUpdate(winningSaleOffer);
+        transaction.commit();
+
+    }
+
 
 
 
