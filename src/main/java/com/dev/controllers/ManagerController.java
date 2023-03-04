@@ -2,6 +2,7 @@ package com.dev.controllers;
 
 import com.dev.objects.Auction;
 import com.dev.objects.User;
+import com.dev.responses.AllUsersResponse;
 import com.dev.responses.BasicResponse;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import static com.dev.utils.Errors.*;
+import static java.lang.Integer.parseInt;
 
 
 @RestController
@@ -30,6 +32,7 @@ public class ManagerController {
         if (user!=null){
             user.setCredit(updatedCredits);
             basicResponse=new BasicResponse(true,null);
+            // אין עדכון בטבלאת היוזרים
         }else {
             basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
         }
@@ -51,8 +54,8 @@ public class ManagerController {
         return openAuctionByUser;
     }
     @RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
-    public List<User> getAllUsers(){
-        return persist.getAllUsers();
+    public AllUsersResponse getAllUsers(){
+        return new AllUsersResponse(true,null,persist.getAllUsers());
     }
 
 
