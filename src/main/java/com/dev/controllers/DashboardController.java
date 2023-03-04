@@ -34,7 +34,7 @@ public class DashboardController {
 
     @RequestMapping(value = "/create-new-auction", method = RequestMethod.POST)
     public BasicResponse createNewAuction(String submitUser, int initialPrice, Product product) {
-        BasicResponse basicResponse = null;
+        BasicResponse basicResponse;
         User user = persist.getUserByToken(submitUser);
         if (user != null) {
             if (product != null) {

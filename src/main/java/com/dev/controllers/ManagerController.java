@@ -2,6 +2,7 @@ package com.dev.controllers;
 
 import com.dev.objects.Auction;
 import com.dev.objects.User;
+import com.dev.responses.AllAuctionsResponse;
 import com.dev.responses.AllUsersResponse;
 import com.dev.responses.BasicResponse;
 import com.dev.utils.Persist;
@@ -32,7 +33,7 @@ public class ManagerController {
             persist.updateCreditsForUser(user,updatedCredits);
             basicResponse=new BasicResponse(true,null);
             System.out.println(user.getCredit());
-            // אין עדכון בטבלאת היוזרים
+
         }else {
             basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
         }
@@ -41,7 +42,7 @@ public class ManagerController {
 
     }
     @RequestMapping(value = "/get-open-auction-by-token", method = RequestMethod.GET)
-    public List<Auction> getOpenAuctionByToken (String token) {
+    public AllAuctionsResponse getOpenAuctionByToken (String token) {
         User user = persist.getUserByToken(token);
         List<Auction> openAuction = persist.getAuctionsByStatus(true) ;
         List<Auction> openAuctionByUser = new ArrayList<>() ;
@@ -52,7 +53,7 @@ public class ManagerController {
         }
 
         }
-        return openAuctionByUser;
+        return new AllAuctionsResponse(true,null,openAuctionByUser);
     }
     @RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
     public AllUsersResponse getAllUsers(){
