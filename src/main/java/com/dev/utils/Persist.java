@@ -1,18 +1,13 @@
 
 package com.dev.utils;
 
-import com.dev.objects.Auction;
-import com.dev.objects.Message;
-import com.dev.objects.SaleOffer;
-import com.dev.objects.User;
+import com.dev.objects.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -128,10 +123,27 @@ public class Persist {
         session.close();
         return wantedAuctionByProductID;
     }
-    public List<Auction> getAuctionByUser (String token) {
+    public List<Auction> getAuctionsByToken(String token) {
         Session session = sessionFactory.openSession();
         List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
         return allAuctionsByUsers;
     }
+    public void saveProduct(Product product) {
+        Session session = sessionFactory.openSession();
+        session.save(product);
+        session.close();
+    }
+    public void updateCreditsForUser(User user , double updatedCredits){
+        Session session=sessionFactory.openSession();
+        Transaction transaction=session.beginTransaction();
+        if (user!=null ){
+            user.setCredit(updatedCredits);
+        }
+        session.saveOrUpdate(user);
+        transaction.commit();
+
+    }
+
+
 
 }

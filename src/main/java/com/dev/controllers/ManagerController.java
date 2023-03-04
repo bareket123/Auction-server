@@ -24,14 +24,14 @@ public class ManagerController {
 
 
 
-// טבלה לא מתעדכנת אבל פונקציה עובדת- לבדוק
-    @RequestMapping (value = "/update-credits",method = RequestMethod.POST)
+    @RequestMapping (value = "/update-credits",method = {RequestMethod.GET,RequestMethod.POST})
     public BasicResponse updateCredits(String token,int updatedCredits){
         BasicResponse basicResponse;
         User user= persist.getUserByToken(token);
         if (user!=null){
-            user.setCredit(updatedCredits);
+            persist.updateCreditsForUser(user,updatedCredits);
             basicResponse=new BasicResponse(true,null);
+            System.out.println(user.getCredit());
             // אין עדכון בטבלאת היוזרים
         }else {
             basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
@@ -45,9 +45,10 @@ public class ManagerController {
         User user = persist.getUserByToken(token);
         List<Auction> openAuction = persist.getAuctionsByStatus(true) ;
         List<Auction> openAuctionByUser = new ArrayList<>() ;
-        for (Auction auction : openAuction )
-        {  if (auction.getSubmitUser().equals(user)) {
-            openAuctionByUser.add(auction) ;
+        for (Auction auction : openAuction ) {
+            if (auction.getSubmitUser().getToken().equals(user.getToken())) {
+                openAuctionByUser.add(auction) ;
+
         }
 
         }
@@ -57,11 +58,7 @@ public class ManagerController {
     public AllUsersResponse getAllUsers(){
         return new AllUsersResponse(true,null,persist.getAllUsers());
     }
-    @RequestMapping(value = "get-all-auctions-by-token",method = {RequestMethod.GET})
-    public List<Auction> getAllAuctionByUser(String token){
-        return persist.getAuctionByUser(token);
 
-    }
 
 }
 /*

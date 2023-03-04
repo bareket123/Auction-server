@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static com.dev.utils.Constants.*;
@@ -35,18 +33,25 @@ public class DashboardController {
     }
 
     @RequestMapping(value = "/create-new-auction" , method = RequestMethod.POST)
-    public BasicResponse createNewAuction (String submitUser, int initialPrice, Product product)
-    {  BasicResponse basicResponse   ;
+    public BasicResponse createNewAuction (String submitUser, int initialPrice, Product product){
+        BasicResponse basicResponse =null;
         User user = persist.getUserByToken(submitUser) ;
-        if( user != null ){
-            Auction newAuction = new Auction(user , initialPrice, product) ;
-            basicResponse = new BasicResponse(true, null ) ;
-            persist.addNewAuction(newAuction) ;
-            TOTAL_RESULT_OF_PAYMENTS  += TENDER_OPENING_COAST ;
-            user.setCredit(user.getCredit()-TENDER_OPENING_COAST);
-        }
-        else
+        if( user != null ) {
+            if (product != null) {
+                persist.saveProduct(product);
+                Auction newAuction = new Auction(user, initialPrice, product);
+                basicResponse = new BasicResponse(true, null);
+                persist.addNewAuction(newAuction);
+                TOTAL_RESULT_OF_PAYMENTS += TENDER_OPENING_COAST;
+                user.setCredit(user.getCredit() - TENDER_OPENING_COAST);
+            }else {
+                basicResponse = new BasicResponse(false ,ERROR_PRODUCT_NOT_SEND);
+            }
+
+        }else{
             basicResponse = new BasicResponse(false , ERROR_NO_SUCH_TOKEN);
+        }
+        System.out.println(basicResponse.getErrorCode());
         return basicResponse;
     }
     @RequestMapping(value = "/close-exist-auction" , method = RequestMethod.POST)
@@ -131,6 +136,11 @@ public class DashboardController {
        }
 
        return basicResponse;
+    }
+    @RequestMapping(value = "get-all-auctions-by-token",method = {RequestMethod.GET})
+    public List<Auction> getAllAuctionByToken(String token){
+        return persist.getAuctionsByToken(token);
+
     }
 
 
