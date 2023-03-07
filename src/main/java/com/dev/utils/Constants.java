@@ -11,7 +11,7 @@ public class Constants {
     public static final double WINNING_BID_COAST=0.05 ;
     public static final double WINNING_BID_CREDIT =0.95 ;
     public static final double NOT_VALID_OFFER =0;
-    public static final int EQUAL_DATES =0;
+    public static final int TIME_OR_DATE_DIFFERENCE =0;
     public static final int EQUAL_TIMES =0;
     public static final int FIRST_AFTER_SECOND =1;
     public static final int FIRST_BEFORE_SECOND =-1;

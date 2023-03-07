@@ -114,8 +114,18 @@ public class Persist {
     public void addNewOffer(SaleOffer saleOffer) {
         Session session = sessionFactory.openSession();
         session.save(saleOffer);
+        session.saveOrUpdate(saleOffer);
         session.close();
+
     }
+    public void addNewOfferToAuctionList(Auction auction,SaleOffer offerToAdd){
+        Session session = sessionFactory.openSession();
+        Transaction transaction=session.beginTransaction();
+        auction.getSaleOffers().add(offerToAdd);
+        session.saveOrUpdate(auction);
+        transaction.commit();
+    }
+
 
     public Auction getAuctionByProductID(int id) {
         Session session = sessionFactory.openSession();
@@ -163,6 +173,7 @@ public class Persist {
         transaction.commit();
 
     }
+
 
 
 
