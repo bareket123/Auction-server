@@ -349,6 +349,11 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
        return basicResponse;
 
     }
+    @RequestMapping (value = "/get-all-sales-offers",method = {RequestMethod.GET})
+    public List<SaleOffer> getAllSaleOffers(){
+        return persist.getAllSaleOffers();
+    }
+
 
 
 
