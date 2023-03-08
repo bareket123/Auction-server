@@ -45,6 +45,7 @@ public class Auction {
         this.initialPrice = initialPrice;
         this.saleOffers = new ArrayList<>();
         this.product = product;
+
     }
 
     public Auction() {

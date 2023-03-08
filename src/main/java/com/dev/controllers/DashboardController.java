@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dev.utils.Constants.*;
 import static com.dev.utils.Errors.*;
@@ -242,17 +243,45 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
         }
         return saleOffersByUser;
     }
+//    @RequestMapping (value = "/get-sales-offers-by-user",method = {RequestMethod.GET})
+//    public BasicResponse getSalesOfferByUser(String token,int auctionId){
+//        BasicResponse basicResponse;
+//        User user=persist.getUserByToken(token);
+//        Auction auction=persist.getAuctionByID(auctionId);
+//        if (user!=null){
+//            if (auction!=null){
+//                basicResponse=new SaleOffersResponse(true,null,getSalesOfferByUser(user,auction));
+//
+//            }else{
+//                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+//            }
+//
+//        }else {
+//            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
+//
+//        }
+//        return basicResponse;
+//    }
+
     @RequestMapping (value = "/get-sales-offers-by-user",method = {RequestMethod.GET})
-    public BasicResponse getSalesOfferByUser(String token,int auctionId){
+    public BasicResponse getSalesOfferByUser(String token){
         BasicResponse basicResponse;
         User user=persist.getUserByToken(token);
-        Auction auction=persist.getAuctionByID(auctionId);
+       List <Auction> allAuctions= persist.getAllAuctions();
         if (user!=null){
-            if (auction!=null){
-                basicResponse=new SaleOffersResponse(true,null,getSalesOfferByUser(user,auction));
+            if (allAuctions!=null){
+                List <Auction> allAuctionsISubmitted=new ArrayList<>();
+                for (Auction  auction: allAuctions) {
+                    if (auction.getSaleOffers().stream().filter((item)->{
+                        return item.getSubmitsOffer().getToken().equals(token);
+                    }).collect(Collectors.toList()).size()>0)
+                    allAuctionsISubmitted.add(auction);
+                }
+
+                basicResponse=new AllAuctionsResponse(true,null,allAuctionsISubmitted);
 
             }else{
-                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+                basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
             }
 
         }else {

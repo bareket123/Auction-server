@@ -82,10 +82,17 @@ public class Persist {
         return auctions;
 
     }
+    public List<Auction> getAllAuctions() {
+        Session session = sessionFactory.openSession();
+        List<Auction> auctions = session.createQuery("from Auction ").list();
+        session.close();
+        return auctions;
+    }
+
 
     public List<SaleOffer> getAllSaleOffers() {
         Session session = sessionFactory.openSession();
-        List<SaleOffer> saleOffers = session.createQuery("from SaleOffer").list();
+        List<SaleOffer> saleOffers = session.createQuery("from SaleOffer  order by offerPrice  desc ").list();
         session.close();
         return saleOffers;
 
