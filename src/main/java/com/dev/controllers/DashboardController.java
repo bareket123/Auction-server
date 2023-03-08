@@ -118,19 +118,25 @@ private SaleOffer checkHigherBid(List<SaleOffer> saleOffers){
 private SaleOffer checkByTime(SaleOffer current,SaleOffer previous){
     int compareTime = current.getTime().compareTo(previous.getTime());
    SaleOffer winningSaleOffer = null;
-   switch (compareTime){
-        case EQUAL_TIMES:
-            //chose random
-            winningSaleOffer=current;
-            break;
-        case FIRST_AFTER_SECOND:
-            winningSaleOffer=previous;
-            break;
-        case FIRST_BEFORE_SECOND:
-           winningSaleOffer=current;
-            break;
+   if (compareTime<=TIME_OR_DATE_DIFFERENCE){
+       winningSaleOffer=current;
+   }else {
+       winningSaleOffer=previous;
+   }
 
-    }
+//   switch (compareTime){
+//        case EQUAL_TIMES:
+//            //chose random
+//            winningSaleOffer=current;
+//            break;
+//        case FIRST_AFTER_SECOND:
+//            winningSaleOffer=previous;
+//            break;
+//        case FIRST_BEFORE_SECOND:
+//           winningSaleOffer=current;
+//            break;
+//
+//    }
     return winningSaleOffer;
 }
 
@@ -327,7 +333,7 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
 
        return basicResponse;
     }
-
+ List<SaleOOfer> allSalesOfferByCurrentAuction
  */
     @RequestMapping(value = "get-all-auctions-by-token",method = {RequestMethod.GET})
     public List<Auction> getAllAuctionByToken(String token){
@@ -353,7 +359,26 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
     public List<SaleOffer> getAllSaleOffers(){
         return persist.getAllSaleOffers();
     }
+    @RequestMapping(value = "get-sorted-sale-offres-by-auction",method = {RequestMethod.GET})
+    public BasicResponse getSortedSaleOffersByAuction(int auctionId){
+        BasicResponse basicResponse;
+        Auction auction=persist.getAuctionByID(auctionId);
+        if (auction!=null){
+          List<SaleOffer> saleOffersByAuction=persist.getSaleOffersListByAuction(auction);
+          if (saleOffersByAuction!=null){
 
+              basicResponse=new SaleOffersResponse(true,null,saleOffersByAuction);
+          }else {
+              basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
+          }
+
+
+        }else {
+            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+
+        }
+       return basicResponse;
+    }
 
 
 

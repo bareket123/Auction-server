@@ -17,4 +17,5 @@ public class Errors {
     public static final int ERROR_NO_OFFERS = 1013;
 
 
+
 }

@@ -8,6 +8,10 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Member;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -179,6 +183,15 @@ public class Persist {
         session.saveOrUpdate(winningSaleOffer);
         transaction.commit();
 
+    }
+    public List<SaleOffer> getSaleOffersListByAuction(Auction auction){
+        List<SaleOffer> saleOffersByAuction=null;
+        if(auction!=null){
+            saleOffersByAuction=auction.getSaleOffers();
+            saleOffersByAuction.sort(Comparator.comparing(SaleOffer::getOfferPrice).reversed());
+
+        }
+     return saleOffersByAuction;
     }
 
 
