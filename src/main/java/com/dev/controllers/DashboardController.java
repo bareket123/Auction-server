@@ -9,14 +9,11 @@ import com.dev.responses.BasicResponse;
 import com.dev.responses.SaleOffersResponse;
 import com.dev.responses.UserCreditsResponse;
 import com.dev.utils.Persist;
-import com.mysql.fabric.xmlrpc.base.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +33,7 @@ public class DashboardController {
 
     @RequestMapping(value = "/get-open-auctions", method = RequestMethod.GET)
     public AllAuctionsResponse getOpenAuction() {
+//          persist.sortedOpenAuctionByHigherOffer();
         return new AllAuctionsResponse(true, null, persist.getAuctionsByStatus(true));
 
     }
@@ -364,7 +362,7 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
         BasicResponse basicResponse;
         Auction auction=persist.getAuctionByID(auctionId);
         if (auction!=null){
-          List<SaleOffer> saleOffersByAuction=persist.getSaleOffersListByAuction(auction);
+          List<SaleOffer> saleOffersByAuction=persist.getSortedSaleOffersListByAuction(auction);
           if (saleOffersByAuction!=null){
 
               basicResponse=new SaleOffersResponse(true,null,saleOffersByAuction);

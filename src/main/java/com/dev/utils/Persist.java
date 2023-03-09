@@ -8,9 +8,6 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Member;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -184,7 +181,7 @@ public class Persist {
         transaction.commit();
 
     }
-    public List<SaleOffer> getSaleOffersListByAuction(Auction auction){
+    public List<SaleOffer> getSortedSaleOffersListByAuction(Auction auction){
         List<SaleOffer> saleOffersByAuction=null;
         if(auction!=null){
             saleOffersByAuction=auction.getSaleOffers();
@@ -193,7 +190,18 @@ public class Persist {
         }
      return saleOffersByAuction;
     }
-
+   public void sortedOpenAuctionByHigherOffer(){
+       Session session=sessionFactory.openSession();
+       List<Auction> openAuctions=getAuctionsByStatus(true);
+       Transaction transaction=session.beginTransaction();
+       for (Auction currentAuction:openAuctions) {
+           List<SaleOffer>sortedSaleOffers=getSortedSaleOffersListByAuction(currentAuction);
+           currentAuction.setSaleOffers(sortedSaleOffers);
+           session.saveOrUpdate(currentAuction);
+           transaction.commit();
+       }
+        session.close();
+   }
 
 
 
