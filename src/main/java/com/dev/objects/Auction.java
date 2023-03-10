@@ -24,28 +24,35 @@ public class Auction {
     @ManyToMany
     @JoinColumn (name = "sales_offers_id")
     private List<SaleOffer> saleOffers;
-    @ManyToOne
-    @JoinColumn (name= "product_id")
-    private Product product;
+    @Column
+    private String productName;
 
+    @Column
+    private String productPhoto;
 
-    public Auction(boolean isOpen, User submitUser, int initialPrice, List<SaleOffer> saleOffers, Product product) {
-        this.openDate = LocalDate.now();
+    @Column
+    private String productDescription;
+
+    public Auction( boolean isOpen, User submitUser, int initialPrice, List<SaleOffer> saleOffers, String productName, String productPhoto, String productDescription) {
+        this.openDate =LocalDate.now();
         this.isOpen = isOpen;
         this.submitUser = submitUser;
         this.initialPrice = initialPrice;
         this.saleOffers = saleOffers;
-        this.product = product;
+        this.productName = productName;
+        this.productPhoto = productPhoto;
+        this.productDescription = productDescription;
     }
 
-    public Auction( User submitUser, int initialPrice, Product product) {
+    public Auction(User submitUser, int initialPrice, String productName, String productPhoto, String productDescription) {
         this.openDate = LocalDate.now();
         this.isOpen = true;
         this.submitUser = submitUser;
         this.initialPrice = initialPrice;
         this.saleOffers = new ArrayList<>();
-        this.product = product;
-
+        this.productName = productName;
+        this.productPhoto = productPhoto;
+        this.productDescription = productDescription;
     }
 
     public Auction() {
@@ -100,11 +107,27 @@ public class Auction {
         this.saleOffers = saleOffers;
     }
 
-    public Product getProduct() {
-        return product;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getProductPhoto() {
+        return productPhoto;
+    }
+
+    public void setProductPhoto(String productPhoto) {
+        this.productPhoto = productPhoto;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 }

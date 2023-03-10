@@ -1,7 +1,6 @@
 package com.dev;
 
 import com.dev.objects.Auction;
-import com.dev.objects.Product;
 import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
 import org.hibernate.SessionFactory;
@@ -51,7 +50,6 @@ public class TestConfig {
         }
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(Auction.class);
-        configuration.addAnnotatedClass(Product.class);
         configuration.addAnnotatedClass(SaleOffer.class);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties()).build();

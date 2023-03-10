@@ -1,5 +1,6 @@
 package com.dev.controllers;
 
+import com.dev.models.OpenAuctionModel;
 import com.dev.objects.Auction;
 import com.dev.objects.User;
 import com.dev.responses.AllAuctionsResponse;
@@ -44,10 +45,11 @@ public class ManagerController {
     @RequestMapping(value = "/get-open-auction-by-token", method = RequestMethod.GET)
     public AllAuctionsResponse getOpenAuctionByToken (String token) {
         User user = persist.getUserByToken(token);
-        List<Auction> openAuction = persist.getAuctionsByStatus(true) ;
-        List<Auction> openAuctionByUser = new ArrayList<>() ;
-        for (Auction auction : openAuction ) {
-            if (auction.getSubmitUser().getToken().equals(user.getToken())) {
+        List<OpenAuctionModel> openAuction = persist.getAuctionsByStatus(true);
+        List<OpenAuctionModel> openAuctionByUser = new ArrayList<>() ;
+        for (OpenAuctionModel auction : openAuction ) {
+            String submitUserToken=persist.getAuctionByID(auction.getAuctionId()).getSubmitUser().getToken();
+            if (submitUserToken.equals(user.getToken())) {
                 openAuctionByUser.add(auction) ;
 
         }

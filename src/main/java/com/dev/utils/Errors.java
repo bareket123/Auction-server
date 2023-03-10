@@ -11,7 +11,7 @@ public class Errors {
     public static final int ERROR_NOT_ENOUGH_OFFERS = 1007;
     public static final int ERROR_NOT_ENOUGH_MONEY = 1008;
     public static final int ERROR_TOO_LOWER_OFFER_PRICE=1009;
-    public static final int ERROR_PRODUCT_NOT_SEND=1010;
+    public static final int ERROR_PRODUCT_DETAILS_NOT_SEND =1010;
     public static final int ERROR_NOT_VALID_SALE_OFFER=1011;
     public static final int ERROR_NOT_VALID_OFFER_USER=1012;
     public static final int ERROR_NO_OFFERS = 1013;

@@ -1,23 +1,20 @@
 package com.dev.controllers;
 
+import com.dev.models.MyOffersModel;
+import com.dev.models.MyProductModel;
+import com.dev.models.OpenAuctionModel;
+import com.dev.models.SaleOfferModel;
 import com.dev.objects.Auction;
-import com.dev.objects.Product;
 import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
-import com.dev.responses.AllAuctionsResponse;
-import com.dev.responses.BasicResponse;
-import com.dev.responses.SaleOffersResponse;
-import com.dev.responses.UserCreditsResponse;
+import com.dev.responses.*;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.dev.utils.Constants.*;
@@ -38,20 +35,20 @@ public class DashboardController {
 
     }
 
-    @RequestMapping(value = "/create-new-auction", method = RequestMethod.POST)
-    public BasicResponse createNewAuction(String submitUser, int initialPrice, Product product) {
+
+    @RequestMapping(value = "/create-new-auction", method = {RequestMethod.POST})
+    public BasicResponse createNewAuction(String submitUser, int initialPrice, String productName, String productPhoto, String productDescription) {
         BasicResponse basicResponse;
         User user = persist.getUserByToken(submitUser);
         if (user != null) {
-            if (product != null) {
-                persist.saveProduct(product);
-                Auction newAuction = new Auction(user, initialPrice, product);
+            if (productName != null || productPhoto != null || productDescription != null) {
+                Auction newAuction = new Auction(user, initialPrice, productName, productPhoto, productDescription);
                 basicResponse = new BasicResponse(true, null);
                 persist.addNewAuction(newAuction);
                 TOTAL_RESULT_OF_PAYMENTS += TENDER_OPENING_COAST;
                 user.setCredit(user.getCredit() - TENDER_OPENING_COAST);
             } else {
-                basicResponse = new BasicResponse(false, ERROR_PRODUCT_NOT_SEND);
+                basicResponse = new BasicResponse(false, ERROR_PRODUCT_DETAILS_NOT_SEND);
             }
 
         } else {
@@ -61,66 +58,68 @@ public class DashboardController {
         return basicResponse;
     }
 
-    @RequestMapping(value = "/close-exist-auction", method ={RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "/close-exist-auction", method = {RequestMethod.POST, RequestMethod.GET})
     public BasicResponse closeExistAuction(int auctionId) {
         BasicResponse basicResponse;
         Auction auctionForClose = persist.getAuctionByID(auctionId);
         if (auctionForClose != null) {
-            if (auctionForClose.getSaleOffers().size() >=3) {
+            if (auctionForClose.getSaleOffers().size() >= 3) {
                 persist.closeAuction(auctionForClose);
-                SaleOffer winningOffer=checkHigherBid(auctionForClose.getSaleOffers());
+                SaleOffer winningOffer = checkHigherBid(auctionForClose.getSaleOffers());
                 persist.updateWinningBid(winningOffer);
-               // persist.updateCreditsForUser(winningOffer.getSubmitsOffer(),winningOffer.getSubmitsOffer().getCredit()-winningOffer.getOfferPrice());
-               List<SaleOffer>losingSalesOffers= auctionForClose.getSaleOffers();
-               losingSalesOffers.remove(winningOffer);
-                returnMoneyForLosers(losingSalesOffers,auctionForClose,winningOffer.getSubmitsOffer());
-                 TOTAL_RESULT_OF_PAYMENTS +=  (WINNING_BID_COAST*winningOffer.getOfferPrice());
-                persist.updateCreditsForUser(auctionForClose.getSubmitUser(),auctionForClose.getSubmitUser().getCredit()+winningOffer.getOfferPrice()* WINNING_BID_CREDIT);
+                // persist.updateCreditsForUser(winningOffer.getSubmitsOffer(),winningOffer.getSubmitsOffer().getCredit()-winningOffer.getOfferPrice());
+                List<SaleOffer> losingSalesOffers = auctionForClose.getSaleOffers();
+                losingSalesOffers.remove(winningOffer);
+                returnMoneyForLosers(losingSalesOffers, auctionForClose, winningOffer.getSubmitsOffer());
+                TOTAL_RESULT_OF_PAYMENTS += (WINNING_BID_COAST * winningOffer.getOfferPrice());
+                persist.updateCreditsForUser(auctionForClose.getSubmitUser(), auctionForClose.getSubmitUser().getCredit() + winningOffer.getOfferPrice() * WINNING_BID_CREDIT);
                 basicResponse = new BasicResponse(true, null);
             } else
-            basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_OFFERS);
+                basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_OFFERS);
 
-    } else{
-            basicResponse =new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+        } else {
+            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_AUCTION);
         }
 
 
         return basicResponse;
-}
-private SaleOffer checkHigherBid(List<SaleOffer> saleOffers){
-    double maxSaleOffer=0;
-    SaleOffer winningSaleOffer=null;
-        for (int i=0;i<saleOffers.size();i++) {
-            SaleOffer currentSaleOffer=saleOffers.get(i);
-            if (currentSaleOffer.getOfferPrice()>maxSaleOffer){
-                maxSaleOffer=currentSaleOffer.getOfferPrice();
-                winningSaleOffer=currentSaleOffer;
-            }else if (currentSaleOffer.getOfferPrice()==maxSaleOffer ){
-                  SaleOffer previousSaleOffer=saleOffers.get(i-1);
-                 int compareDate = currentSaleOffer.getDate().compareTo(previousSaleOffer.getDate());
-                if (compareDate > TIME_OR_DATE_DIFFERENCE){
-                    winningSaleOffer=previousSaleOffer;
-                    maxSaleOffer=previousSaleOffer.getOfferPrice();
-                }else if (compareDate== TIME_OR_DATE_DIFFERENCE){
-                    winningSaleOffer=checkByTime(currentSaleOffer,previousSaleOffer);
-                    maxSaleOffer=winningSaleOffer.getOfferPrice();
-                }else {
-                    winningSaleOffer=currentSaleOffer;
-                       maxSaleOffer=currentSaleOffer.getOfferPrice();
+    }
+
+    private SaleOffer checkHigherBid(List<SaleOffer> saleOffers) {
+        double maxSaleOffer = 0;
+        SaleOffer winningSaleOffer = null;
+        for (int i = 0; i < saleOffers.size(); i++) {
+            SaleOffer currentSaleOffer = saleOffers.get(i);
+            if (currentSaleOffer.getOfferPrice() > maxSaleOffer) {
+                maxSaleOffer = currentSaleOffer.getOfferPrice();
+                winningSaleOffer = currentSaleOffer;
+            } else if (currentSaleOffer.getOfferPrice() == maxSaleOffer) {
+                SaleOffer previousSaleOffer = saleOffers.get(i - 1);
+                int compareDate = currentSaleOffer.getDate().compareTo(previousSaleOffer.getDate());
+                if (compareDate > TIME_OR_DATE_DIFFERENCE) {
+                    winningSaleOffer = previousSaleOffer;
+                    maxSaleOffer = previousSaleOffer.getOfferPrice();
+                } else if (compareDate == TIME_OR_DATE_DIFFERENCE) {
+                    winningSaleOffer = checkByTime(currentSaleOffer, previousSaleOffer);
+                    maxSaleOffer = winningSaleOffer.getOfferPrice();
+                } else {
+                    winningSaleOffer = currentSaleOffer;
+                    maxSaleOffer = currentSaleOffer.getOfferPrice();
                 }
 
             }
-       }
+        }
         return winningSaleOffer;
-}
-private SaleOffer checkByTime(SaleOffer current,SaleOffer previous){
-    int compareTime = current.getTime().compareTo(previous.getTime());
-   SaleOffer winningSaleOffer = null;
-   if (compareTime<=TIME_OR_DATE_DIFFERENCE){
-       winningSaleOffer=current;
-   }else {
-       winningSaleOffer=previous;
-   }
+    }
+
+    private SaleOffer checkByTime(SaleOffer current, SaleOffer previous) {
+        int compareTime = current.getTime().compareTo(previous.getTime());
+        SaleOffer winningSaleOffer = null;
+        if (compareTime <= TIME_OR_DATE_DIFFERENCE) {
+            winningSaleOffer = current;
+        } else {
+            winningSaleOffer = previous;
+        }
 
 //   switch (compareTime){
 //        case EQUAL_TIMES:
@@ -135,20 +134,20 @@ private SaleOffer checkByTime(SaleOffer current,SaleOffer previous){
 //            break;
 //
 //    }
-    return winningSaleOffer;
-}
+        return winningSaleOffer;
+    }
 
-    private void returnMoneyForLosers (List <SaleOffer> losingOffers,Auction auction,User winner) {
-        Set<User> losingUsers=new HashSet<>();
-        for (SaleOffer offer:losingOffers) {
+    private void returnMoneyForLosers(List<SaleOffer> losingOffers, Auction auction, User winner) {
+        Set<User> losingUsers = new HashSet<>();
+        for (SaleOffer offer : losingOffers) {
             losingUsers.add(offer.getSubmitsOffer());
         }
-        for (User currentUser:losingUsers) {
-            if(!winner.getToken().equals(currentUser.getToken())){
-                List<SaleOffer> saleOffersByUser=getSalesOfferByUser(currentUser,auction);
-                if (saleOffersByUser.size()>0){
-                    SaleOffer highestOfferOfUser=checkHigherBid(saleOffersByUser);
-                    persist.updateCreditsForUser(currentUser,currentUser.getCredit()+highestOfferOfUser.getOfferPrice());
+        for (User currentUser : losingUsers) {
+            if (!winner.getToken().equals(currentUser.getToken())) {
+                List<SaleOffer> saleOffersByUser = getSalesOfferByUser(currentUser, auction);
+                if (saleOffersByUser.size() > 0) {
+                    SaleOffer highestOfferOfUser = checkHigherBid(saleOffersByUser);
+                    persist.updateCreditsForUser(currentUser, currentUser.getCredit() + highestOfferOfUser.getOfferPrice());
 
                 }
             }
@@ -158,38 +157,38 @@ private SaleOffer checkByTime(SaleOffer current,SaleOffer previous){
 
     }
 
-    @RequestMapping(value = "/create-sale-offer" , method = {RequestMethod.GET,RequestMethod.POST})
-    public BasicResponse createSaleOffer (String token , double offerPrice,int auctionId) {
+    @RequestMapping(value = "/create-sale-offer", method = {RequestMethod.GET, RequestMethod.POST})
+    public BasicResponse createSaleOffer(String token, double offerPrice, int auctionId) {
         BasicResponse basicResponse;
         User user = persist.getUserByToken(token);
         Auction auction = persist.getAuctionByID(auctionId);
         if (user != null) {
-            if (auction!=null){
-            if (!(user.getToken().equals(auction.getSubmitUser().getToken()))) {
-                if (user.getCredit() >= offerPrice && auction.getInitialPrice()<=offerPrice) {
-                    if (offerPrice != NOT_VALID_OFFER) {
-                        SaleOffer newSaleOffer = new SaleOffer(user, offerPrice);
-                        persist.addNewOffer(newSaleOffer);
-                        persist.addNewOfferToAuctionList(auction,newSaleOffer);
-                        TOTAL_RESULT_OF_PAYMENTS += OFFERS_SUBMIT_COAST;
-                        persist.updateCreditsForUser(user, user.getCredit() - OFFERS_SUBMIT_COAST);
-                       // updateCreditByPreviousOffer(user,productId);
-                        updateCreditByHigherOffer(user,auction,newSaleOffer);
+            if (auction != null) {
+                if (!(user.getToken().equals(auction.getSubmitUser().getToken()))) {
+                    if (user.getCredit() >= offerPrice && auction.getInitialPrice() <= offerPrice) {
+                        if (offerPrice != NOT_VALID_OFFER) {
+                            SaleOffer newSaleOffer = new SaleOffer(user, offerPrice);
+                            persist.addNewOffer(newSaleOffer);
+                            persist.addNewOfferToAuctionList(auction, newSaleOffer);
+                            TOTAL_RESULT_OF_PAYMENTS += OFFERS_SUBMIT_COAST;
+                            persist.updateCreditsForUser(user, user.getCredit() - OFFERS_SUBMIT_COAST);
+                            // updateCreditByPreviousOffer(user,productId);
+                            updateCreditByHigherOffer(user, auction, newSaleOffer);
 
 
-                        basicResponse = new BasicResponse(true, null);
+                            basicResponse = new BasicResponse(true, null);
+                        } else {
+                            basicResponse = new BasicResponse(false, ERROR_NOT_VALID_SALE_OFFER);
+                        }
+
                     } else {
-                        basicResponse = new BasicResponse(false, ERROR_NOT_VALID_SALE_OFFER);
+                        basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_MONEY);
                     }
-
                 } else {
-                    basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_MONEY);
+                    basicResponse = new BasicResponse(false, ERROR_NOT_VALID_OFFER_USER);
                 }
             } else {
-                basicResponse = new BasicResponse(false, ERROR_NOT_VALID_OFFER_USER);
-            }
-            }else {
-                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+                basicResponse = new BasicResponse(false, ERROR_NO_SUCH_AUCTION);
             }
         } else {
             basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
@@ -216,27 +215,26 @@ private SaleOffer checkByTime(SaleOffer current,SaleOffer previous){
 //    }
 
 
+    private void updateCreditByHigherOffer(User user, Auction auction, SaleOffer newSaleOffer) {
+        List<SaleOffer> saleOffersByUser = getSalesOfferByUser(user, auction);
+        if (saleOffersByUser.size() > 1) {
+            saleOffersByUser.remove(newSaleOffer);
+            SaleOffer highestWithoutTheNew = checkHigherBid(saleOffersByUser);
+            System.out.println("current highest without: " + highestWithoutTheNew.getOfferPrice());
+            System.out.println("current new: " + newSaleOffer.getOfferPrice());
+            if (newSaleOffer.getOfferPrice() > highestWithoutTheNew.getOfferPrice()) {
+                persist.updateCreditsForUser(user, user.getCredit() - newSaleOffer.getOfferPrice());
+                persist.updateCreditsForUser(user, user.getCredit() + highestWithoutTheNew.getOfferPrice());
+            } else if (newSaleOffer.getOfferPrice() == highestWithoutTheNew.getOfferPrice()) {
+                persist.updateCreditsForUser(user, user.getCredit() - newSaleOffer.getOfferPrice());
 
-private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSaleOffer){
-       List<SaleOffer> saleOffersByUser=getSalesOfferByUser(user,auction);
-        if (saleOffersByUser.size()>1){
-        saleOffersByUser.remove(newSaleOffer);
-        SaleOffer highestWithoutTheNew=checkHigherBid(saleOffersByUser);
-        System.out.println("current highest without: "+ highestWithoutTheNew.getOfferPrice());
-        System.out.println("current new: "+ newSaleOffer.getOfferPrice());
-        if (newSaleOffer.getOfferPrice()>highestWithoutTheNew.getOfferPrice()){
-            persist.updateCreditsForUser(user,user.getCredit()-newSaleOffer.getOfferPrice());
-            persist.updateCreditsForUser(user,user.getCredit()+highestWithoutTheNew.getOfferPrice());
+            }
+        } else {
+            persist.updateCreditsForUser(user, user.getCredit() - newSaleOffer.getOfferPrice());
         }
-        else if (newSaleOffer.getOfferPrice()==highestWithoutTheNew.getOfferPrice()){
-            persist.updateCreditsForUser(user,user.getCredit()-newSaleOffer.getOfferPrice());
+    }
 
-        }
-    }else {
-            persist.updateCreditsForUser(user,user.getCredit()-newSaleOffer.getOfferPrice());
-    }
-    }
-    private List<SaleOffer> getSalesOfferByUser(User user,Auction auction) {
+    private List<SaleOffer> getSalesOfferByUser(User user, Auction auction) {
         List<SaleOffer> allSalesOfferByAuction = auction.getSaleOffers();
         List<SaleOffer> saleOffersByUser = new ArrayList<>();
         for (SaleOffer saleOffer : allSalesOfferByAuction) {
@@ -247,42 +245,57 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
         }
         return saleOffersByUser;
     }
-//    @RequestMapping (value = "/get-sales-offers-by-user",method = {RequestMethod.GET})
-//    public BasicResponse getSalesOfferByUser(String token,int auctionId){
-//        BasicResponse basicResponse;
-//        User user=persist.getUserByToken(token);
-//        Auction auction=persist.getAuctionByID(auctionId);
-//        if (user!=null){
-//            if (auction!=null){
-//                basicResponse=new SaleOffersResponse(true,null,getSalesOfferByUser(user,auction));
-//
-//            }else{
-//                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
-//            }
-//
-//        }else {
-//            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
-//
-//        }
-//        return basicResponse;
-//    }
 
-    @RequestMapping (value = "/get-sales-offers-by-user",method = {RequestMethod.GET})
-    public BasicResponse getSalesOfferByUser(String token){
+    @RequestMapping(value = "/test2", method = {RequestMethod.GET, RequestMethod.POST})
+    public BasicResponse  getMyOffer(String token, int auctionId) {
+        User user = persist.getUserByToken(token);
         BasicResponse basicResponse;
+        Auction auction = persist.getAuctionByID(auctionId);
+        if (user != null) {
+            if (auction != null) {
+                List<SaleOffer> mySaleOfferByAuction = getSalesOfferByUser(user, auction);
+                if (mySaleOfferByAuction != null) {
+                    basicResponse = new SaleOffersResponse(true, null, mySaleOfferByAuction);
+
+                } else
+                    basicResponse = new BasicResponse(false, ERROR_NO_SUCH_AUCTION);
+
+            } else
+                basicResponse = new BasicResponse(false, ERROR_NO_OFFERS);
+
+
+        } else
+            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
+
+
+        return basicResponse;
+    }
+
+
+    @RequestMapping(value = "/test" , method = {RequestMethod.GET,RequestMethod.POST})
+
+    public  HashMap<Auction,List<SaleOffer>> getMapOfMyAuction(String token){
+        HashMap<Auction,List<SaleOffer>> myAuctions = new HashMap<>();
+        List <Auction> allAuctionsISubmitted=new ArrayList<>();
+        BasicResponse basicResponse=null;
         User user=persist.getUserByToken(token);
-       List <Auction> allAuctions= persist.getAllAuctions();
+        List <Auction> allAuctions= persist.getAllAuctions();
         if (user!=null){
             if (allAuctions!=null){
-                List <Auction> allAuctionsISubmitted=new ArrayList<>();
+//                List <Auction> allAuctionsISubmitted=new ArrayList<>();
                 for (Auction  auction: allAuctions) {
                     if (auction.getSaleOffers().stream().filter((item)->{
                         return item.getSubmitsOffer().getToken().equals(token);
                     }).collect(Collectors.toList()).size()>0)
-                    allAuctionsISubmitted.add(auction);
+                        allAuctionsISubmitted.add(auction);
                 }
 
-                basicResponse=new AllAuctionsResponse(true,null,allAuctionsISubmitted);
+                for (Auction myAuction:allAuctionsISubmitted) {
+                    myAuctions.put(myAuction,getSalesOfferByUser(user,myAuction));
+                }
+
+
+            //    basicResponse=new AllAuctionsResponse(true,null,allAuctionsISubmitted);
 
             }else{
                 basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
@@ -294,8 +307,41 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
         }
 
 
-        return basicResponse;
+        return myAuctions;
+
+
     }
+
+
+//    @RequestMapping (value = "/get-my-auctions",method = {RequestMethod.GET})
+//    public BasicResponse getMyAuctions(String token){
+//        BasicResponse basicResponse;
+//        User user=persist.getUserByToken(token);
+//       List <Auction> allAuctions= persist.getAllAuctions();
+//        if (user!=null){
+//            if (allAuctions!=null){
+//                List <OpenAuctionModel> allAuctionsISubmitted=new ArrayList<>();
+//                for (OpenAuctionModel  auction: allAuctions) {
+//                    if (auction.getSaleOffers().stream().filter((item)->{
+//                        return item.getSubmitsOffer().getToken().equals(token);
+//                    }).collect(Collectors.toList()).size()>0)
+//                    allAuctionsISubmitted.add(auction);
+//                }
+//
+//                basicResponse=new AllAuctionsResponse(true,null,allAuctionsISubmitted);
+//
+//            }else{
+//                basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
+//            }
+//
+//        }else {
+//            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
+//
+//        }
+//
+//
+//        return basicResponse;
+//    }
 
 /*
     private BasicResponse updateCreditByPreviousOffer (User user, int productId) {
@@ -338,6 +384,29 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
         return persist.getAuctionsByToken(token);
 
     }
+    @RequestMapping(value = "get-Model-all-auctions-by-token",method = {RequestMethod.GET})
+    public List<MyProductModel> getAllProductModelByToken(String token){
+        List<MyProductModel> myProductModels=new ArrayList<>();
+        MyProductModel newProductModel;
+        SaleOffer highestOffer;
+        List<Auction> myAuctions=persist.getAuctionsByToken(token);
+        for (Auction auction:myAuctions) {
+            highestOffer=checkHigherBid(auction.getSaleOffers());
+            if (highestOffer!=null){
+                 newProductModel=new MyProductModel(auction,new SaleOfferModel(highestOffer));
+
+            }else {
+                 newProductModel=new MyProductModel(auction);
+
+
+            }
+            myProductModels.add(newProductModel);
+
+        }
+
+        return myProductModels;
+    }
+
     @RequestMapping(value = "get-user-credits",method = {RequestMethod.GET})
     public BasicResponse getUserCredits(String userToken){
        User user=persist.getUserByToken(userToken);
@@ -356,6 +425,36 @@ private void updateCreditByHigherOffer(User user,Auction auction,SaleOffer newSa
     @RequestMapping (value = "/get-all-sales-offers",method = {RequestMethod.GET})
     public List<SaleOffer> getAllSaleOffers(){
         return persist.getAllSaleOffers();
+    }
+    @RequestMapping (value = "/get-my-offers-model",method = {RequestMethod.GET})
+    public BasicResponse getAllMyOffersModel(String token){
+        User user=persist.getUserByToken(token);
+        List<MyOffersModel> myOffersModels=new ArrayList<>();
+//        List<SaleOffer> myOffers=new ArrayList<>();
+        BasicResponse basicResponse;
+        if (user!=null){
+            for (Auction auction:persist.getAllAuctions()) {
+                List<SaleOffer> currentOffersInAuction=getSalesOfferByUser(user,auction);
+                for (SaleOffer currentOffer:currentOffersInAuction) {
+                 MyOffersModel newOffer=new MyOffersModel(currentOffer,auction);
+                    myOffersModels.add(newOffer);
+                }
+//                if (currentOffersInAuction.size()>0){
+//                    myOffers.addAll(currentOffersInAuction);
+////
+//                }
+            }
+            if (myOffersModels.size()>0){
+                basicResponse=new MyOfferResponse(true,null,myOffersModels);
+
+            }else {
+                basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
+            }
+        }else {
+            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
+        }
+
+        return basicResponse;
     }
     @RequestMapping(value = "get-sorted-sale-offres-by-auction",method = {RequestMethod.GET})
     public BasicResponse getSortedSaleOffersByAuction(int auctionId){

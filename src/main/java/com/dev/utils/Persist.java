@@ -1,6 +1,7 @@
 
 package com.dev.utils;
 
+import com.dev.models.OpenAuctionModel;
 import com.dev.objects.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -8,6 +9,7 @@ import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -67,21 +69,29 @@ public class Persist {
     }
 
 
-    public User getUserById(int id) {
-        Session session = sessionFactory.openSession();
-        User user = (User) session.createQuery("FROM User WHERE id = :id")
-                .setParameter("id", id)
-                .uniqueResult();
-        session.close();
-        return user;
-    }
+//    public User getUserById(int id) {
+//        Session session = sessionFactory.openSession();
+//        User user = (User) session.createQuery("FROM User WHERE id = :id")
+//                .setParameter("id", id)
+//                .uniqueResult();
+//        session.close();
+//        return user;
+//    }
 
-    public List<Auction> getAuctionsByStatus(boolean isOpen) {
+    public List<OpenAuctionModel> getAuctionsByStatus(boolean isOpen) {
         Session session = sessionFactory.openSession();
         List<Auction> auctions = session.createQuery("from Auction where isOpen= :isOpen").setParameter("isOpen", isOpen).list();
         session.close();
-        return auctions;
 
+        return getOpenAuctionsModel(auctions);
+    }
+    private List<OpenAuctionModel> getOpenAuctionsModel(List<Auction> auctions){
+        List<OpenAuctionModel> openAuctionModels=new ArrayList<>();
+        for (Auction auction:auctions) {
+            OpenAuctionModel newModel= new OpenAuctionModel(auction);
+            openAuctionModels.add(newModel);
+        }
+        return openAuctionModels;
     }
     public List<Auction> getAllAuctions() {
         Session session = sessionFactory.openSession();
@@ -134,23 +144,28 @@ public class Persist {
         transaction.commit();
     }
 
-
-    public Auction getAuctionByProductID(int id) {
-        Session session = sessionFactory.openSession();
-        Auction wantedAuctionByProductID = (Auction) session.createQuery("From Auction WHERE product.id=:id").setParameter("id", id).uniqueResult();
-        session.close();
-        return wantedAuctionByProductID;
-    }
+//
+//    public Auction getAuctionByProductID(int id) {
+//        Session session = sessionFactory.openSession();
+//        Auction wantedAuctionByProductID = (Auction) session.createQuery("From Auction WHERE product.id=:id").setParameter("id", id).uniqueResult();
+//        session.close();
+//        return wantedAuctionByProductID;
+//    }
     public List<Auction> getAuctionsByToken(String token) {
         Session session = sessionFactory.openSession();
         List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
         return allAuctionsByUsers;
     }
-    public void saveProduct(Product product) {
+    public List<Auction> getAuctionsByToken2(String token) {
         Session session = sessionFactory.openSession();
-        session.save(product);
-        session.close();
+        List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
+        return allAuctionsByUsers;
     }
+//    public void saveProduct(Product product) {
+//        Session session = sessionFactory.openSession();
+//        session.save(product);
+//        session.close();
+//    }
     public void updateCreditsForUser(User user , double updatedCredits){
         Session session=sessionFactory.openSession();
         Transaction transaction=session.beginTransaction();
@@ -190,18 +205,18 @@ public class Persist {
         }
      return saleOffersByAuction;
     }
-   public void sortedOpenAuctionByHigherOffer(){
-       Session session=sessionFactory.openSession();
-       List<Auction> openAuctions=getAuctionsByStatus(true);
-       Transaction transaction=session.beginTransaction();
-       for (Auction currentAuction:openAuctions) {
-           List<SaleOffer>sortedSaleOffers=getSortedSaleOffersListByAuction(currentAuction);
-           currentAuction.setSaleOffers(sortedSaleOffers);
-           session.saveOrUpdate(currentAuction);
-           transaction.commit();
-       }
-        session.close();
-   }
+//   public void sortedOpenAuctionByHigherOffer(){
+//       Session session=sessionFactory.openSession();
+//       List<Auction> openAuctions=getAuctionsByStatus(true);
+//       Transaction transaction=session.beginTransaction();
+//       for (Auction currentAuction:openAuctions) {
+//           List<SaleOffer>sortedSaleOffers=getSortedSaleOffersListByAuction(currentAuction);
+//           currentAuction.setSaleOffers(sortedSaleOffers);
+//           session.saveOrUpdate(currentAuction);
+//           transaction.commit();
+//       }
+//        session.close();
+//   }
 
 
 
