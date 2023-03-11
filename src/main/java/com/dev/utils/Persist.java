@@ -144,7 +144,7 @@ public class Persist {
         transaction.commit();
     }
 
-//
+
 //    public Auction getAuctionByProductID(int id) {
 //        Session session = sessionFactory.openSession();
 //        Auction wantedAuctionByProductID = (Auction) session.createQuery("From Auction WHERE product.id=:id").setParameter("id", id).uniqueResult();

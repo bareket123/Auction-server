@@ -1,9 +1,6 @@
 package com.dev.controllers;
 
-import com.dev.models.MyOffersModel;
-import com.dev.models.MyProductModel;
-import com.dev.models.OpenAuctionModel;
-import com.dev.models.SaleOfferModel;
+import com.dev.models.*;
 import com.dev.objects.Auction;
 import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
@@ -157,16 +154,23 @@ public class DashboardController {
 
     }
 
-    @RequestMapping(value = "/create-sale-offer", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/create-sale-offer", method = {RequestMethod.POST})
     public BasicResponse createSaleOffer(String token, double offerPrice, int auctionId) {
         BasicResponse basicResponse;
         User user = persist.getUserByToken(token);
         Auction auction = persist.getAuctionByID(auctionId);
         if (user != null) {
             if (auction != null) {
+                List<SaleOffer> offersByUser=getSalesOfferByUser(user,auction);
                 if (!(user.getToken().equals(auction.getSubmitUser().getToken()))) {
-                    if (user.getCredit() >= offerPrice && auction.getInitialPrice() <= offerPrice) {
-                        if (offerPrice != NOT_VALID_OFFER) {
+                    if (user.getCredit() >= offerPrice && auction.getInitialPrice() <= offerPrice&&offerPrice != NOT_VALID_OFFER ) {
+                            SaleOffer highestOfferByUser = checkHigherBid(offersByUser);
+                            if (highestOfferByUser!=null){
+                                if (offerPrice<highestOfferByUser.getOfferPrice()) {
+                                    return new BasicResponse(false,ERROR_TOO_LOWER_OFFER_PRICE);
+                                }
+                            }
+
                             SaleOffer newSaleOffer = new SaleOffer(user, offerPrice);
                             persist.addNewOffer(newSaleOffer);
                             persist.addNewOfferToAuctionList(auction, newSaleOffer);
@@ -174,12 +178,8 @@ public class DashboardController {
                             persist.updateCreditsForUser(user, user.getCredit() - OFFERS_SUBMIT_COAST);
                             // updateCreditByPreviousOffer(user,productId);
                             updateCreditByHigherOffer(user, auction, newSaleOffer);
-
-
                             basicResponse = new BasicResponse(true, null);
-                        } else {
-                            basicResponse = new BasicResponse(false, ERROR_NOT_VALID_SALE_OFFER);
-                        }
+
 
                     } else {
                         basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_MONEY);
@@ -215,6 +215,7 @@ public class DashboardController {
 //    }
 
 
+
     private void updateCreditByHigherOffer(User user, Auction auction, SaleOffer newSaleOffer) {
         List<SaleOffer> saleOffersByUser = getSalesOfferByUser(user, auction);
         if (saleOffersByUser.size() > 1) {
@@ -238,9 +239,14 @@ public class DashboardController {
         List<SaleOffer> allSalesOfferByAuction = auction.getSaleOffers();
         List<SaleOffer> saleOffersByUser = new ArrayList<>();
         for (SaleOffer saleOffer : allSalesOfferByAuction) {
-            if (saleOffer.getSubmitsOffer().getToken().equals(user.getToken())) {
-                saleOffersByUser.add(saleOffer);
+            if(user!=null){
+                if (saleOffer.getSubmitsOffer().getToken().equals(user.getToken())) {
+                    saleOffersByUser.add(saleOffer);
+                }
+            }else {
+                System.out.println("user is null");
             }
+
 
         }
         return saleOffersByUser;
@@ -311,6 +317,40 @@ public class DashboardController {
 
 
     }
+    @RequestMapping(value = "get-all-auctions" , method = RequestMethod.GET)
+    public List<AuctionIdModel> getAllAuctionsSize(){
+        List<AuctionIdModel> auctionIdModels=new ArrayList<>();
+        for (Auction auction:persist.getAllAuctions()) {
+            AuctionIdModel newAuctionIdModel=new AuctionIdModel(auction);
+            auctionIdModels.add(newAuctionIdModel);
+
+        }
+        return auctionIdModels;
+    }
+    @RequestMapping(value = "get-product-by-id" , method = RequestMethod.GET)
+    public BasicResponse getProductById(int auctionId,String token){
+        BasicResponse basicResponse;
+       Auction auction=persist.getAuctionByID(auctionId);
+       User user=persist.getUserByToken(token);
+       List<SaleOffer> saleOffers=getSalesOfferByUser(user,auction);
+       if (user!=null){
+           if (auction!=null){
+               ProductModel productModel=new ProductModel(auction,saleOffers);
+              if (auction.getSubmitUser().getToken().equals(token)){
+                basicResponse=new ProductModelResponse(true,null,productModel,true);
+              }else {
+                  basicResponse=new ProductModelResponse(true,null,productModel,false);
+              }
+           }else {
+               basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+           }
+       }else {
+          basicResponse=new BasicResponse(false,ERROR_NO_SUCH_TOKEN);
+       }
+       return basicResponse ;
+
+    }
+
 
 
 //    @RequestMapping (value = "/get-my-auctions",method = {RequestMethod.GET})
