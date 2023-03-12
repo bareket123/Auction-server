@@ -14,7 +14,7 @@ public class ProductModel {
     private String productDescription;
     private String creationDate;
     private int initialPrice;
-    private int numberOffers;
+    private List<SaleOfferModel> allOffers;
     private String publisher;
     private List<SaleOfferModel> saleOffersByUser;
 
@@ -26,7 +26,7 @@ public class ProductModel {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         this.creationDate = auction.getOpenDate().format(formatter);
         this.initialPrice = auction.getInitialPrice();
-        this.numberOffers = auction.getSaleOffers().size();
+        this.allOffers = convertOffersListToOffersModelList(auction.getSaleOffers());
         this.publisher = auction.getSubmitUser().getUsername();
         this.saleOffersByUser = convertOffersListToOffersModelList(saleOffersByUser);
     }
@@ -71,12 +71,13 @@ public class ProductModel {
         this.initialPrice = initialPrice;
     }
 
-    public int getNumberOffers() {
-        return numberOffers;
+
+    public List<SaleOfferModel> getAllOffers() {
+        return allOffers;
     }
 
-    public void setNumberOffers(int numberOffers) {
-        this.numberOffers = numberOffers;
+    public void setAllOffers(List<SaleOfferModel> allOffers) {
+        this.allOffers = allOffers;
     }
 
     public String getPublisher() {

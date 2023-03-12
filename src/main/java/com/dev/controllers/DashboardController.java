@@ -22,6 +22,7 @@ public class DashboardController {
 
     @Autowired
     private Persist persist;
+    @Autowired
     private static int TOTAL_RESULT_OF_PAYMENTS = 0;
 
 
@@ -38,7 +39,7 @@ public class DashboardController {
         BasicResponse basicResponse;
         User user = persist.getUserByToken(submitUser);
         if (user != null) {
-            if (productName != null || productPhoto != null || productDescription != null) {
+            if (productName != null && productPhoto != null && productDescription != null) {
                 Auction newAuction = new Auction(user, initialPrice, productName, productPhoto, productDescription);
                 basicResponse = new BasicResponse(true, null);
                 persist.addNewAuction(newAuction);
@@ -60,20 +61,24 @@ public class DashboardController {
         BasicResponse basicResponse;
         Auction auctionForClose = persist.getAuctionByID(auctionId);
         if (auctionForClose != null) {
-            if (auctionForClose.getSaleOffers().size() >= 3) {
-                persist.closeAuction(auctionForClose);
-                SaleOffer winningOffer = checkHigherBid(auctionForClose.getSaleOffers());
-                persist.updateWinningBid(winningOffer);
-                // persist.updateCreditsForUser(winningOffer.getSubmitsOffer(),winningOffer.getSubmitsOffer().getCredit()-winningOffer.getOfferPrice());
-                List<SaleOffer> losingSalesOffers = auctionForClose.getSaleOffers();
-                losingSalesOffers.remove(winningOffer);
-                returnMoneyForLosers(losingSalesOffers, auctionForClose, winningOffer.getSubmitsOffer());
-                TOTAL_RESULT_OF_PAYMENTS += (WINNING_BID_COAST * winningOffer.getOfferPrice());
-                persist.updateCreditsForUser(auctionForClose.getSubmitUser(), auctionForClose.getSubmitUser().getCredit() + winningOffer.getOfferPrice() * WINNING_BID_CREDIT);
-                basicResponse = new BasicResponse(true, null);
-            } else
-                basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_OFFERS);
+            if (auctionForClose.isOpen()) {
+                if (auctionForClose.getSaleOffers().size() >= 3) {
+                    persist.closeAuction(auctionForClose);
+                    SaleOffer winningOffer = checkHigherBid(auctionForClose.getSaleOffers());
+                    persist.updateWinningBid(winningOffer);
+                    // persist.updateCreditsForUser(winningOffer.getSubmitsOffer(),winningOffer.getSubmitsOffer().getCredit()-winningOffer.getOfferPrice());
+                    List<SaleOffer> losingSalesOffers = auctionForClose.getSaleOffers();
+                    losingSalesOffers.remove(winningOffer);
+                    returnMoneyForLosers(losingSalesOffers, auctionForClose, winningOffer.getSubmitsOffer());
+                    TOTAL_RESULT_OF_PAYMENTS += (WINNING_BID_COAST * winningOffer.getOfferPrice());
+                    persist.updateCreditsForUser(auctionForClose.getSubmitUser(), auctionForClose.getSubmitUser().getCredit() + winningOffer.getOfferPrice() * WINNING_BID_CREDIT);
+                    basicResponse = new BasicResponse(true, null);
+                } else
+                    basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_OFFERS);
+            }else {
+                basicResponse = new BasicResponse(false, ERROR_AUCTION_IS_CLOSED);
 
+            }
         } else {
             basicResponse = new BasicResponse(false, ERROR_NO_SUCH_AUCTION);
         }
@@ -424,6 +429,12 @@ public class DashboardController {
         return persist.getAuctionsByToken(token);
 
     }
+
+    @RequestMapping(value = "get-username-by-token",method = {RequestMethod.GET})
+    public String getUsernameByToken(String token){
+        return persist.getUserByToken(token).getUsername();
+
+    }
     @RequestMapping(value = "get-Model-all-auctions-by-token",method = {RequestMethod.GET})
     public List<MyProductModel> getAllProductModelByToken(String token){
         List<MyProductModel> myProductModels=new ArrayList<>();
@@ -496,27 +507,30 @@ public class DashboardController {
 
         return basicResponse;
     }
-    @RequestMapping(value = "get-sorted-sale-offres-by-auction",method = {RequestMethod.GET})
-    public BasicResponse getSortedSaleOffersByAuction(int auctionId){
-        BasicResponse basicResponse;
-        Auction auction=persist.getAuctionByID(auctionId);
-        if (auction!=null){
-          List<SaleOffer> saleOffersByAuction=persist.getSortedSaleOffersListByAuction(auction);
-          if (saleOffersByAuction!=null){
+//    @RequestMapping(value = "get-sorted-sale-offers-by-auction",method = {RequestMethod.GET})
+//    public BasicResponse getSortedSaleOffersByAuction(int auctionId){
+//        BasicResponse basicResponse;
+//        Auction auction=persist.getAuctionByID(auctionId);
+//        if (auction!=null){
+//          List<SaleOffer> saleOffersByAuction=persist.getSortedSaleOffersListByAuction(auction);
+//          if (saleOffersByAuction!=null){
+//
+//              basicResponse=new SaleOffersResponse(true,null,saleOffersByAuction);
+//          }else {
+//              basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
+//          }
+//
+//
+//        }else {
+//            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+//
+//        }
+//       return basicResponse;
+//    }
 
-              basicResponse=new SaleOffersResponse(true,null,saleOffersByAuction);
-          }else {
-              basicResponse=new BasicResponse(false,ERROR_NO_OFFERS);
-          }
-
-
-        }else {
-            basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
-
+        public int getTotalResultOfPayments (){
+        return TOTAL_RESULT_OF_PAYMENTS;
         }
-       return basicResponse;
-    }
-
 
 
 

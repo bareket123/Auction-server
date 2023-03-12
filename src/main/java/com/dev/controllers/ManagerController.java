@@ -23,6 +23,8 @@ public class ManagerController {
     @Autowired
     private Persist persist;
 
+    @Autowired
+    private DashboardController dashboardController;
 
 
 
@@ -63,7 +65,14 @@ public class ManagerController {
     }
 
 
+
+    @RequestMapping(value = "get-total-result-payments" , method = RequestMethod.GET)
+    public int getTotalResultOfPayments(){
+        return new DashboardController().getTotalResultOfPayments();
+    }
+
 }
+
 /*
 במחלקה - manageController
 שינינו את סוג הערך המוחזר מLIST לAllUsersResponse
