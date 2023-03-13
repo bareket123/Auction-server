@@ -24,6 +24,8 @@ public class DashboardController {
     private Persist persist;
     @Autowired
     private static int TOTAL_RESULT_OF_PAYMENTS = 0;
+    @Autowired
+    private LiveUpdatesController liveUpdatesController;
 
 
     @RequestMapping(value = "/get-open-auctions", method = RequestMethod.GET)
@@ -43,8 +45,8 @@ public class DashboardController {
                 Auction newAuction = new Auction(user, initialPrice, productName, productPhoto, productDescription);
                 basicResponse = new BasicResponse(true, null);
                 persist.addNewAuction(newAuction);
-                TOTAL_RESULT_OF_PAYMENTS += TENDER_OPENING_COAST;
-                user.setCredit(user.getCredit() - TENDER_OPENING_COAST);
+                TOTAL_RESULT_OF_PAYMENTS += AUCTION_OPENING_COAST;
+                persist.updateCreditsForUser(user,user.getCredit() - AUCTION_OPENING_COAST);
             } else {
                 basicResponse = new BasicResponse(false, ERROR_PRODUCT_DETAILS_NOT_SEND);
             }
@@ -531,6 +533,25 @@ public class DashboardController {
         public int getTotalResultOfPayments (){
         return TOTAL_RESULT_OF_PAYMENTS;
         }
+    @RequestMapping (value = "/added-new-offer", method = RequestMethod.POST)
+    public BasicResponse notificationOfNewOffer(String token, int auctionId) {
+        BasicResponse basicResponse = null;
+        User user = persist.getUserByToken(token);
+        Auction auction=persist.getAuctionByID(auctionId);
+        if (user != null) {
+            if (auction!=null){
+                liveUpdatesController.addedNewOffer(user.getId(), auction.getSubmitUser().getId());
+                basicResponse=new BasicResponse(true,null);
+            }else {
+                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+            }
+
+        } else {
+            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
+        }
+
+        return basicResponse;
+    }
 
 
 

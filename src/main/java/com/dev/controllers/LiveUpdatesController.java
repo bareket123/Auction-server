@@ -1,8 +1,8 @@
 package com.dev.controllers;
 
 
+
 import com.dev.objects.Auction;
-import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,26 +13,17 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.*;
 
-import static com.dev.utils.Constants.EVENT_TYPING;
-import static com.dev.utils.Constants.MINUTE;
+import static com.dev.utils.Constants.*;
 
 @Controller
 public class LiveUpdatesController {
 
     @Autowired
     private Persist persist;
-    @Autowired
-    private DashboardController dashboardController;
 
-    private List<SseEmitter> emitterList = new ArrayList<>();
-    private Map<String, SseEmitter> emitterMap = new HashMap<>();
+//    private List<SseEmitter> emitterList = new ArrayList<>();
+    private Map<String,SseEmitter> emitterMap = new HashMap<>();
 
-    /*
-    -עוד בעמוד הראשי:
-    יש להציג נוטיפיקציות המגיעות מהשרת באמצעות SSE
-    במקרה שמישהו הגיש הצעה למוצר שאותו העליתי למכירה, או שמכרז שבו הצעתי הצעה נסגר.
-
-     */
 //    @PostConstruct
 //    public void init () {
 //        new Thread(() -> {
@@ -57,56 +48,50 @@ public class LiveUpdatesController {
 //    }
 
     @RequestMapping (value = "/sse-handler", method = RequestMethod.GET)
-    public SseEmitter handle (String submitterOfferToken, int auctionId) {
-        User submitterOfferUser = persist.getUserByToken(submitterOfferToken);
-        Auction auctionThatChanged=persist.getAuctionByID(auctionId);
+                               //מגיש הצעה+ מכרז עבורו מוגשת הצעה
+    public SseEmitter handle (String submitUserToken,int auctionId) {
         SseEmitter sseEmitter = null;
-        if (submitterOfferUser != null) {
-            if (auctionThatChanged!=null){
+        Auction auction=persist.getAuctionByID(auctionId);
+        User user=persist.getUserByToken(submitUserToken);
+        if (user!=null){
+            if (auction!=null){
                 sseEmitter = new SseEmitter(10L * MINUTE);
-                String key = createKey(auctionThatChanged.getSubmitUser().getId(), submitterOfferUser.getId());
-                this.emitterMap.put(key, sseEmitter);
-            }else {
-                System.out.println("auction is null*********************");
-            }
+                 String key = createKey(user.getId(), auction.getSubmitUser().getId());
+                this.emitterMap.put(key,sseEmitter);
 
-        }else {
-            System.out.println("offer is null*********************");
+            }
         }
+
         return sseEmitter;
     }
-//    private SaleOffer getNewOffer(String token,List<SaleOffer> saleOffers){
-//       SaleOffer newSaleOffer=null;
-//        List<SaleOffer> allOfferByUser=new ArrayList<>();
-//        for (SaleOffer currentOffer:saleOffers) {
-//            if (currentOffer.getSubmitsOffer().getToken().equals(token)){
-//                allOfferByUser.add(currentOffer);
-//            }
-//        }
-//        if (allOfferByUser.size()>1){
-//            //check time and date
-//        }else if (allOfferByUser.size()==1){
-//
-//        }
-//
-//    }
 
     private String createKey (int senderId, int recipientId) {
         return String.format("%d_%d", senderId, recipientId);
     }
 
-    public void sendStartTypingEvent (int senderId, int recipientId) {
-        String key = createKey(recipientId, senderId);
-        SseEmitter conversationEmitter = this.emitterMap.get(key);
-        if (conversationEmitter != null) {
+    public void addedNewOffer (int submitterOfferId, int submitterAuctionId) {
+        String key = createKey(submitterAuctionId, submitterOfferId);
+        SseEmitter messageEmitter = this.emitterMap.get(key);
+        if (messageEmitter != null) {
             try {
-                conversationEmitter.send(EVENT_TYPING);
+                messageEmitter.send(EVENT_ADDED_NEW_OFFER);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-//
+    public void submittedAuctionWasClosed (int submitterOfferId, int submitterAuctionId) {
+        String key = createKey(submitterAuctionId, submitterOfferId);
+        SseEmitter messageEmitter = this.emitterMap.get(key);
+        if (messageEmitter != null) {
+            try {
+                messageEmitter.send(EVENT_ADDED_NEW_OFFER);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 //    public void sendConversationMessage (int senderId, int recipientId, String content) {
 //        String key = createKey(recipientId, senderId);
 //        SseEmitter conversationEmitter = this.emitterMap.get(key);

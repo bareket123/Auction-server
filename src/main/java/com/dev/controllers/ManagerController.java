@@ -1,11 +1,12 @@
 package com.dev.controllers;
 
 import com.dev.models.OpenAuctionModel;
-import com.dev.objects.Auction;
+import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
 import com.dev.responses.AllAuctionsResponse;
 import com.dev.responses.AllUsersResponse;
 import com.dev.responses.BasicResponse;
+import com.dev.utils.Constants;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,6 +70,19 @@ public class ManagerController {
     @RequestMapping(value = "get-total-result-payments" , method = RequestMethod.GET)
     public int getTotalResultOfPayments(){
         return new DashboardController().getTotalResultOfPayments();
+    }
+
+
+    @RequestMapping(value = "get-total-system-payments" , method = RequestMethod.GET)
+    public double totalSystemPayments(){
+        double totalResultOfPayment=0;
+        List<SaleOffer> winningOffers= persist.getAllWinningOffers();
+        for (SaleOffer offer:winningOffers) {
+            totalResultOfPayment+=offer.getOfferPrice()* Constants.WINNING_BID_COAST;
+        }
+        totalResultOfPayment+=persist.getAllAuctions().size()*Constants.AUCTION_OPENING_COAST;
+        totalResultOfPayment+=persist.getAllSaleOffers().size()*Constants.OFFERS_SUBMIT_COAST;
+        return totalResultOfPayment;
     }
 
 }

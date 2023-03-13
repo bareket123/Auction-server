@@ -205,6 +205,13 @@ public class Persist {
         }
      return saleOffersByAuction;
     }
+    public List<SaleOffer> getAllWinningOffers(){
+        Session session = sessionFactory.openSession();
+        List<SaleOffer> winningOffers =  session.createQuery("From SaleOffer WHERE isWon=:isWon").setParameter("isWon",true).list();
+        return winningOffers;
+
+
+    }
 //   public void sortedOpenAuctionByHigherOffer(){
 //       Session session=sessionFactory.openSession();
 //       List<Auction> openAuctions=getAuctionsByStatus(true);
