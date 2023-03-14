@@ -170,10 +170,13 @@ public class DashboardController {
             if (auction != null) {
                 List<SaleOffer> offersByUser=getSalesOfferByUser(user,auction);
                 if (!(user.getToken().equals(auction.getSubmitUser().getToken()))) {
-                    if (user.getCredit() >= offerPrice && auction.getInitialPrice() <= offerPrice&&offerPrice != NOT_VALID_OFFER ) {
+                    if (user.getCredit() >= (offerPrice+OFFERS_SUBMIT_COAST) && auction.getInitialPrice() <= offerPrice&&offerPrice != NOT_VALID_OFFER ) {
                             SaleOffer highestOfferByUser = checkHigherBid(offersByUser);
                             if (highestOfferByUser!=null){
                                 if (offerPrice<highestOfferByUser.getOfferPrice()) {
+                                    return new BasicResponse(false,ERROR_TOO_LOWER_OFFER_PRICE);
+                                }
+                                if (offerPrice==highestOfferByUser.getOfferPrice()) {
                                     return new BasicResponse(false,ERROR_TOO_LOWER_OFFER_PRICE);
                                 }
                             }

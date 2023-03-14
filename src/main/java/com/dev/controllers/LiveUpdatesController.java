@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.*;
 
 import static com.dev.utils.Constants.*;
@@ -21,45 +23,45 @@ public class LiveUpdatesController {
     @Autowired
     private Persist persist;
 
-//    private List<SseEmitter> emitterList = new ArrayList<>();
+    private List<SseEmitter> emitterList = new ArrayList<>();
     private Map<String,SseEmitter> emitterMap = new HashMap<>();
 
-//    @PostConstruct
-//    public void init () {
-//        new Thread(() -> {
-//            while (true) {
-//                for (SseEmitter sseEmitter : emitterList) {
-//                    try {
-//                        sseEmitter.send(new Date().toString());
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                try {
-//                    Thread.sleep(SECOND);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//
-//
-//
-//    }
+    @PostConstruct
+    public void init () {
+        new Thread(() -> {
+            while (true) {
+                for (SseEmitter sseEmitter : emitterList) {
+                    try {
+                        sseEmitter.send(new Date().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    Thread.sleep(SECOND);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+
+
+    }
 
     @RequestMapping (value = "/sse-handler", method = RequestMethod.GET)
                                //מגיש הצעה+ מכרז עבורו מוגשת הצעה
-    public SseEmitter handle (String submitUserToken,int auctionId) {
+    public SseEmitter handle (String submitUserToken,int auctionId) throws IOException {
         SseEmitter sseEmitter = null;
         Auction auction=persist.getAuctionByID(auctionId);
         User user=persist.getUserByToken(submitUserToken);
         if (user!=null){
             if (auction!=null){
                 sseEmitter = new SseEmitter(10L * MINUTE);
-                 String key = createKey(user.getId(), auction.getSubmitUser().getId());
+               String key = createKey(user.getId(), auction.getSubmitUser().getId());
                 this.emitterMap.put(key,sseEmitter);
-
             }
+
         }
 
         return sseEmitter;
@@ -70,7 +72,7 @@ public class LiveUpdatesController {
     }
 
     public void addedNewOffer (int submitterOfferId, int submitterAuctionId) {
-        String key = createKey(submitterAuctionId, submitterOfferId);
+        String key = createKey(submitterOfferId,submitterAuctionId);
         SseEmitter messageEmitter = this.emitterMap.get(key);
         if (messageEmitter != null) {
             try {
