@@ -156,9 +156,11 @@ public class Persist {
         List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
         return allAuctionsByUsers;
     }
-    public List<Auction> getAuctionsByToken2(String token) {
+
+
+    public List<Auction> getOpenAuctionsByToken(String token) {
         Session session = sessionFactory.openSession();
-        List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
+        List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token and isOpen=:isOpen").setParameter("token", token).setParameter("isOpen",true).list();
         return allAuctionsByUsers;
     }
 //    public void saveProduct(Product product) {

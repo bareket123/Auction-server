@@ -360,6 +360,12 @@ public class DashboardController {
        return basicResponse ;
 
     }
+    @RequestMapping(value = "/get-open-auction-size-by-token" ,method = {RequestMethod.GET})
+    public int getOpenAuctionByToken(String token){
+    return persist.getOpenAuctionsByToken(token).size();
+
+
+    }
 
 
 
