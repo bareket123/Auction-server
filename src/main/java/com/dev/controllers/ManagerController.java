@@ -67,10 +67,10 @@ public class ManagerController {
 
 
 
-    @RequestMapping(value = "get-total-result-payments" , method = RequestMethod.GET)
-    public int getTotalResultOfPayments(){
-        return new DashboardController().getTotalResultOfPayments();
-    }
+//    @RequestMapping(value = "get-total-result-payments" , method = RequestMethod.GET)
+//    public int getTotalResultOfPayments(){
+//        return new DashboardController().getTotalResultOfPayments();
+//    }
 
 
     @RequestMapping(value = "get-total-system-payments" , method = RequestMethod.GET)

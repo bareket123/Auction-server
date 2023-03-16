@@ -74,6 +74,7 @@ public class DashboardController {
                     returnMoneyForLosers(losingSalesOffers, auctionForClose, winningOffer.getSubmitsOffer());
                     TOTAL_RESULT_OF_PAYMENTS += (WINNING_BID_COAST * winningOffer.getOfferPrice());
                     persist.updateCreditsForUser(auctionForClose.getSubmitUser(), auctionForClose.getSubmitUser().getCredit() + winningOffer.getOfferPrice() * WINNING_BID_CREDIT);
+                    liveUpdatesController.submittedAuctionWasClosed(auctionForClose.getSaleOffers());
                     basicResponse = new BasicResponse(true, null);
                 } else
                     basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_OFFERS);
@@ -188,6 +189,7 @@ public class DashboardController {
                             persist.updateCreditsForUser(user, user.getCredit() - OFFERS_SUBMIT_COAST);
                             // updateCreditByPreviousOffer(user,productId);
                             updateCreditByHigherOffer(user, auction, newSaleOffer);
+                            liveUpdatesController.addedNewOffer(auction.getSubmitUser().getToken());
                             basicResponse = new BasicResponse(true, null);
 
 
@@ -539,28 +541,25 @@ public class DashboardController {
 //       return basicResponse;
 //    }
 
-        public int getTotalResultOfPayments (){
-        return TOTAL_RESULT_OF_PAYMENTS;
-        }
-    @RequestMapping (value = "/added-new-offer", method = RequestMethod.POST)
-    public BasicResponse notificationOfNewOffer(String token, int auctionId) {
-        BasicResponse basicResponse = null;
-        User user = persist.getUserByToken(token);
-        Auction auction=persist.getAuctionByID(auctionId);
-        if (user != null) {
-            if (auction!=null){
-                liveUpdatesController.addedNewOffer(user.getId(), auction.getSubmitUser().getId());
-                basicResponse=new BasicResponse(true,null);
-            }else {
-                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
-            }
-
-        } else {
-            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
-        }
-
-        return basicResponse;
-    }
+//    @RequestMapping (value = "/added-new-offer", method = RequestMethod.POST)
+//    public BasicResponse notificationOfNewOffer(String token, int auctionId) {
+//        BasicResponse basicResponse = null;
+//        User user = persist.getUserByToken(token);
+//        Auction auction=persist.getAuctionByID(auctionId);
+//        if (user != null) {
+//            if (auction!=null){
+//                liveUpdatesController.addedNewOffer(user.getId(), auction.getSubmitUser().getId());
+//                basicResponse=new BasicResponse(true,null);
+//            }else {
+//                basicResponse=new BasicResponse(false,ERROR_NO_SUCH_AUCTION);
+//            }
+//
+//        } else {
+//            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
+//        }
+//
+//        return basicResponse;
+//    }
 
 
 
