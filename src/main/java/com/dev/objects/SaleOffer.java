@@ -25,6 +25,7 @@ public class SaleOffer {
     private boolean isWon;
 
 
+
     public SaleOffer(User submitsOffer, double offerPrice) {
         this.date= LocalDate.now();
         this.time= LocalTime.now();

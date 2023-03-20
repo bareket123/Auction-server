@@ -14,13 +14,6 @@ public class MyOffersModel {
     private SaleOfferModel saleOfferModel;
 
 
-
-//    public MyOffersModel(List<SaleOfferModel> saleOfferModel, Auction auction){
-//        productName=auction.getProductName();
-//        this.auctionStatus=auction.isOpen();
-//        this.saleOfferModels=saleOfferModel;
-//
-//    }
     public MyOffersModel(SaleOffer saleOffer, Auction auction){
         productName=auction.getProductName();
         this.auctionStatus=auction.isOpen();

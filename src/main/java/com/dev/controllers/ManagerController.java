@@ -24,10 +24,6 @@ public class ManagerController {
     @Autowired
     private Persist persist;
 
-    @Autowired
-    private DashboardController dashboardController;
-
-
 
     @RequestMapping (value = "/update-credits",method = {RequestMethod.POST})
     public BasicResponse updateCredits(String token,int updatedCredits){
@@ -67,43 +63,26 @@ public class ManagerController {
 
 
 
-//    @RequestMapping(value = "get-total-result-payments" , method = RequestMethod.GET)
-//    public int getTotalResultOfPayments(){
-//        return new DashboardController().getTotalResultOfPayments();
-//    }
-
 
     @RequestMapping(value = "get-total-system-payments" , method = RequestMethod.GET)
     public double totalSystemPayments(){
         double totalResultOfPayment=0;
-        List<SaleOffer> winningOffers= persist.getAllWinningOffers();
+        System.out.println("****************************************");
+
+        List<SaleOffer > winningOffers= persist.getAllWinningOffers();
         for (SaleOffer offer:winningOffers) {
             totalResultOfPayment+=offer.getOfferPrice()* Constants.WINNING_BID_COAST;
+            System.out.println("****************************************");
+            System.out.println("offer:"+ offer.getOfferPrice());
+            System.out.println("****************************************");
+
         }
         totalResultOfPayment+=persist.getAllAuctions().size()*Constants.AUCTION_OPENING_COAST;
         totalResultOfPayment+=persist.getAllSaleOffers().size()*Constants.OFFERS_SUBMIT_COAST;
+        System.out.println("*****************"+totalResultOfPayment+"*************");
         return totalResultOfPayment;
     }
 
 }
 
-/*
-במחלקה - manageController
-שינינו את סוג הערך המוחזר מLIST לAllUsersResponse
-@RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
-public AllUsersResponse getAllUsers(){
-   return new AllUsersResponse(true,null,persist.getAllUsers());
-}
 
-בפונקציה updateCredit :
-אין שינוי בטבלת sql לאחר שינוי קרדיט.
-אבל הפונקציה כן עובדת רק הטבלה לא מתעדכנת .
-
-
-—איך אתן מקשרות מכרז למוצר?
-
-–להוסיף ל- product description   שדה של תיאור מוצר .
-
-–השדה בטבלה של auction  מכיל מוצר ולא שם מוצר.
-
- */

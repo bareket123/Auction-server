@@ -17,6 +17,7 @@ public class ProductModel {
     private List<SaleOfferModel> allOffers;
     private String publisher;
     private List<SaleOfferModel> saleOffersByUser;
+    private boolean isOpen;
 
 
     public ProductModel(Auction auction, List<SaleOffer> saleOffersByUser) {
@@ -29,6 +30,7 @@ public class ProductModel {
         this.allOffers = convertOffersListToOffersModelList(auction.getSaleOffers());
         this.publisher = auction.getSubmitUser().getUsername();
         this.saleOffersByUser = convertOffersListToOffersModelList(saleOffersByUser);
+        this.isOpen=auction.isOpen();
     }
 
     public String getProductName() {
@@ -105,4 +107,11 @@ public class ProductModel {
 
     }
 
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        isOpen = open;
+    }
 }

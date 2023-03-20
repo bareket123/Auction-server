@@ -41,7 +41,7 @@ public class Persist {
 
 
     public User getUserByUsernameAndToken(String username, String token) {
-        User found = null;
+        User found;
         Session session = sessionFactory.openSession();
         found = (User) session.createQuery("FROM User WHERE username = :username " +
                         "AND token = :token")
@@ -68,15 +68,6 @@ public class Persist {
         return user;
     }
 
-
-//    public User getUserById(int id) {
-//        Session session = sessionFactory.openSession();
-//        User user = (User) session.createQuery("FROM User WHERE id = :id")
-//                .setParameter("id", id)
-//                .uniqueResult();
-//        session.close();
-//        return user;
-//    }
 
     public List<OpenAuctionModel> getAuctionsByStatus(boolean isOpen) {
         Session session = sessionFactory.openSession();
@@ -122,13 +113,6 @@ public class Persist {
         return wantedAuction;
     }
 
-    public SaleOffer getOffersByID(int id) {
-        Session session = sessionFactory.openSession();
-        SaleOffer offer = (SaleOffer) session.createQuery("From SaleOffer WHERE id=:id").setParameter("id", id).uniqueResult();
-        session.close();
-        return offer;
-    }
-
     public void addNewOffer(SaleOffer saleOffer) {
         Session session = sessionFactory.openSession();
         session.save(saleOffer);
@@ -142,18 +126,14 @@ public class Persist {
         auction.getSaleOffers().add(offerToAdd);
         session.saveOrUpdate(auction);
         transaction.commit();
+        session.close();
     }
 
 
-//    public Auction getAuctionByProductID(int id) {
-//        Session session = sessionFactory.openSession();
-//        Auction wantedAuctionByProductID = (Auction) session.createQuery("From Auction WHERE product.id=:id").setParameter("id", id).uniqueResult();
-//        session.close();
-//        return wantedAuctionByProductID;
-//    }
     public List<Auction> getAuctionsByToken(String token) {
         Session session = sessionFactory.openSession();
         List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token").setParameter("token", token).list();
+        session.close();
         return allAuctionsByUsers;
     }
 
@@ -161,13 +141,10 @@ public class Persist {
     public List<Auction> getOpenAuctionsByToken(String token) {
         Session session = sessionFactory.openSession();
         List<Auction> allAuctionsByUsers =  session.createQuery("From Auction WHERE submitUser.token = :token and isOpen=:isOpen").setParameter("token", token).setParameter("isOpen",true).list();
+        session.close();
         return allAuctionsByUsers;
     }
-//    public void saveProduct(Product product) {
-//        Session session = sessionFactory.openSession();
-//        session.save(product);
-//        session.close();
-//    }
+
     public void updateCreditsForUser(User user , double updatedCredits){
         Session session=sessionFactory.openSession();
         Transaction transaction=session.beginTransaction();
@@ -176,6 +153,7 @@ public class Persist {
         }
         session.saveOrUpdate(user);
         transaction.commit();
+        session.close();
 
     }
     public void closeAuction(Auction auctionForClose){
@@ -186,6 +164,8 @@ public class Persist {
         }
         session.saveOrUpdate(auctionForClose);
         transaction.commit();
+        session.close();
+
 
     }
     public void updateWinningBid(SaleOffer winningSaleOffer){
@@ -196,37 +176,18 @@ public class Persist {
         }
         session.saveOrUpdate(winningSaleOffer);
         transaction.commit();
+        session.close();
 
-    }
-    public List<SaleOffer> getSortedSaleOffersListByAuction(Auction auction){
-        List<SaleOffer> saleOffersByAuction=null;
-        if(auction!=null){
-            saleOffersByAuction=auction.getSaleOffers();
-            saleOffersByAuction.sort(Comparator.comparing(SaleOffer::getOfferPrice).reversed());
 
-        }
-     return saleOffersByAuction;
     }
     public List<SaleOffer> getAllWinningOffers(){
         Session session = sessionFactory.openSession();
         List<SaleOffer> winningOffers =  session.createQuery("From SaleOffer WHERE isWon=:isWon").setParameter("isWon",true).list();
+        session.close();
         return winningOffers;
 
 
     }
-//   public void sortedOpenAuctionByHigherOffer(){
-//       Session session=sessionFactory.openSession();
-//       List<Auction> openAuctions=getAuctionsByStatus(true);
-//       Transaction transaction=session.beginTransaction();
-//       for (Auction currentAuction:openAuctions) {
-//           List<SaleOffer>sortedSaleOffers=getSortedSaleOffersListByAuction(currentAuction);
-//           currentAuction.setSaleOffers(sortedSaleOffers);
-//           session.saveOrUpdate(currentAuction);
-//           transaction.commit();
-//       }
-//        session.close();
-//   }
-
 
 
 

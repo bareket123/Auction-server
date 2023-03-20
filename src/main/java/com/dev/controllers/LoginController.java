@@ -81,15 +81,6 @@ public class LoginController {
       public int getUsersSize(){
         return persist.getAllUsers().size();
     }
-//    @RequestMapping(value = "get-open-auction-size" , method = RequestMethod.GET)
-//    public int getOpenAuctionSize(){
-//        return persist.getAuctionsByStatus(true).size();
-//    }
-//
-//    @RequestMapping(value = "get-close-auction-size" , method = RequestMethod.GET)
-//    public int getCloseAuctionSize(){
-//        return persist.getAuctionsByStatus(false).size();
-//    }
 
     @RequestMapping(value = "get-all-sale-offers-size" , method = RequestMethod.GET)
     public int getAllSaleOffersSize(){
