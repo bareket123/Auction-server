@@ -79,7 +79,8 @@ public class Persist {
     private List<OpenAuctionModel> getOpenAuctionsModel(List<Auction> auctions){
         List<OpenAuctionModel> openAuctionModels=new ArrayList<>();
         for (Auction auction:auctions) {
-            OpenAuctionModel newModel= new OpenAuctionModel(auction);
+            //check this
+            OpenAuctionModel newModel= new OpenAuctionModel(auction,0);
             openAuctionModels.add(newModel);
         }
         return openAuctionModels;

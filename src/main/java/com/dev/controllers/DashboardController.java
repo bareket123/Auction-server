@@ -29,8 +29,21 @@ public class DashboardController {
 
 
     @RequestMapping(value = "/get-open-auctions", method = RequestMethod.GET)
-    public AllAuctionsResponse getOpenAuction() {
-        return new AllAuctionsResponse(true, null, persist.getAuctionsByStatus(true));
+    public List <OpenAuctionModel> getOpenAuction(String token) {
+        List<OpenAuctionModel> openAuctionModels=new ArrayList<>();
+        User user=persist.getUserByToken(token);
+        if (user!=null){
+            for (OpenAuctionModel openAuction:persist.getAuctionsByStatus(true)) {
+                Auction currentAuction=persist.getAuctionByID(openAuction.getAuctionId());
+                if(currentAuction!=null){
+                    OpenAuctionModel openAuctionModel=new OpenAuctionModel(currentAuction,getSalesOfferByUser(user,currentAuction).size());
+                    openAuctionModels.add(openAuctionModel);
+                }
+
+            }
+        }
+       return openAuctionModels;
+
 
     }
 

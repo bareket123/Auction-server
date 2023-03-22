@@ -4,6 +4,7 @@ import com.dev.objects.Auction;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OpenAuctionModel {
@@ -12,18 +13,21 @@ public class OpenAuctionModel {
     private String productPhoto;
     private String creationDate;
     private int amountOfSaleOffers;
+    private int amountOfMySaleOffers;
 
 
 
-    public OpenAuctionModel(Auction auction) {
+    public OpenAuctionModel(Auction auction,int myOffers) {
         this.auctionId=auction.getId();
         this.productName = auction.getProductName();
         this.productPhoto=auction.getProductPhoto();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         this.creationDate = auction.getOpenDate().format(formatter);
         this.amountOfSaleOffers = auction.getSaleOffers().size();
+        this.amountOfMySaleOffers=myOffers;
 
     }
+
 
 
     public String getProductName() {
@@ -65,4 +69,13 @@ public class OpenAuctionModel {
     public void setAuctionId(int auctionId) {
         this.auctionId = auctionId;
     }
+
+    public int getAmountOfMySaleOffers() {
+        return amountOfMySaleOffers;
+    }
+
+    public void setAmountOfMySaleOffers(int amountOfMySaleOffers) {
+        this.amountOfMySaleOffers = amountOfMySaleOffers;
+    }
+
 }
