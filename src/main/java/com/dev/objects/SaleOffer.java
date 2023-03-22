@@ -15,7 +15,6 @@ public class SaleOffer {
     private LocalDate date;
     @Column
     private LocalTime time;
-
     @ManyToOne
     @JoinColumn (name = "username")
     private User submitsOffer;
@@ -23,7 +22,6 @@ public class SaleOffer {
     private double offerPrice;
     @Column
     private boolean isWon;
-
 
 
     public SaleOffer(User submitsOffer, double offerPrice) {

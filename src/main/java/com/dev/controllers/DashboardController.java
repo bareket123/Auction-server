@@ -24,6 +24,8 @@ public class DashboardController {
     private Persist persist;
     @Autowired
     private LiveUpdatesController liveUpdatesController;
+    @Autowired
+    private ManagerController managerController;
 
 
     @RequestMapping(value = "/get-open-auctions", method = RequestMethod.GET)

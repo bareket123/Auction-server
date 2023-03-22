@@ -25,10 +25,10 @@ import static com.dev.utils.Constants.*;
 public class LiveUpdatesController {
 
 
-    @ModelAttribute
-    public void init (HttpServletRequest request) {
-        System.out.println(request.getRequestURI());
-    }
+//    @ModelAttribute
+//    public void init (HttpServletRequest request) {
+//        System.out.println(request.getRequestURI());
+//    }
 
     @Autowired
     private Persist persist;
@@ -51,6 +51,21 @@ public class LiveUpdatesController {
 
         return sseEmitter;
     }
+//    public void getSystemCred(double credit,String token) {
+//        SseEmitter credits=emitterMap.get(token);
+//        if (credits!=null){
+//            try{
+//                credits.send(credit);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//
+//        }else {
+//            System.out.println("credit is null");
+//        }
+//
+//
+//    }
 
 
     public void addedNewOffer (String token) {
@@ -93,6 +108,7 @@ public class LiveUpdatesController {
         }
 
     }
+
 
 
 }

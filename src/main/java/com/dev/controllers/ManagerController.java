@@ -67,19 +67,12 @@ public class ManagerController {
     @RequestMapping(value = "get-total-system-payments" , method = RequestMethod.GET)
     public double totalSystemPayments(){
         double totalResultOfPayment=0;
-        System.out.println("****************************************");
-
         List<SaleOffer > winningOffers= persist.getAllWinningOffers();
         for (SaleOffer offer:winningOffers) {
             totalResultOfPayment+=offer.getOfferPrice()* Constants.WINNING_BID_COAST;
-            System.out.println("****************************************");
-            System.out.println("offer:"+ offer.getOfferPrice());
-            System.out.println("****************************************");
-
         }
         totalResultOfPayment+=persist.getAllAuctions().size()*Constants.AUCTION_OPENING_COAST;
         totalResultOfPayment+=persist.getAllSaleOffers().size()*Constants.OFFERS_SUBMIT_COAST;
-        System.out.println("*****************"+totalResultOfPayment+"*************");
         return totalResultOfPayment;
     }
 
