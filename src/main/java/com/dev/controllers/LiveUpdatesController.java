@@ -51,21 +51,6 @@ public class LiveUpdatesController {
 
         return sseEmitter;
     }
-//    public void getSystemCred(double credit,String token) {
-//        SseEmitter credits=emitterMap.get(token);
-//        if (credits!=null){
-//            try{
-//                credits.send(credit);
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-//
-//        }else {
-//            System.out.println("credit is null");
-//        }
-//
-//
-//    }
 
 
     public void addedNewOffer (String token) {
@@ -78,17 +63,19 @@ public class LiveUpdatesController {
             }
         }
     }
+
+
     public void submittedAuctionWasClosed (List<SaleOffer> saleOffers) {
-        List<String> offers = new ArrayList<>();
+        List<String> offersTokens = new ArrayList<>();
         for (SaleOffer saleOffer : saleOffers) {
-            String token = saleOffer.getSubmitsOffer().getToken();
-            if (!offers.contains(token)) {
-                offers.add(token);
+            String currentSubmitOfferToken = saleOffer.getSubmitsOffer().getToken();
+            if (!offersTokens.contains(currentSubmitOfferToken)) {
+                offersTokens.add(currentSubmitOfferToken);
             }
         }
 
         List<SseEmitter> emitterList = new ArrayList<>();
-        for (String offer : offers) {
+        for (String offer : offersTokens) {
             SseEmitter emitter = this.emitterMap.get(offer);
             if (emitter != null) {
                 emitterList.add(emitter);
@@ -102,12 +89,11 @@ public class LiveUpdatesController {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            }else {
-                System.out.println("sse is null");
             }
         }
 
     }
+
 
 
 
