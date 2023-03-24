@@ -1,7 +1,6 @@
 package com.dev.responses;
 
 import com.dev.models.OpenAuctionModel;
-import com.dev.objects.Auction;
 
 import java.util.List;
 

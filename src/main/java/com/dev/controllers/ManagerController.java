@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import static com.dev.utils.Errors.*;
-import static java.lang.Integer.parseInt;
 
 
 @RestController
