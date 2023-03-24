@@ -3,8 +3,6 @@ package com.dev.models;
 import com.dev.objects.Auction;
 import com.dev.objects.SaleOffer;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MyOffersModel {
 
