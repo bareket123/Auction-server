@@ -1,19 +1,18 @@
 package com.dev.responses;
 
 import com.dev.models.OpenAuctionModel;
-import com.dev.objects.Auction;
 
 import java.util.List;
 
-public class AllAuctionsResponse extends BasicResponse {
+public class OpenAuctionsResponse extends BasicResponse {
     private List<OpenAuctionModel> auctions;
 
 
-    public AllAuctionsResponse(List<OpenAuctionModel> auctions) {
+    public OpenAuctionsResponse(List<OpenAuctionModel> auctions) {
         this.auctions = auctions;
     }
 
-    public AllAuctionsResponse(boolean success, Integer errorCode, List<OpenAuctionModel> auctions) {
+    public OpenAuctionsResponse(boolean success, Integer errorCode, List<OpenAuctionModel> auctions) {
         super(success, errorCode);
         this.auctions = auctions;
     }

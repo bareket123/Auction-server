@@ -2,8 +2,6 @@ package com.dev.models;
 
 import com.dev.objects.Auction;
 import com.dev.objects.SaleOffer;
-import com.dev.objects.User;
-
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +71,6 @@ public class ProductModel {
         this.initialPrice = initialPrice;
     }
 
-
     public List<SaleOfferModel> getAllOffers() {
         return allOffers;
     }
@@ -104,7 +101,6 @@ public class ProductModel {
             saleOfferModels.add(newOfferModel);
         }
         return saleOfferModels;
-
     }
 
     public boolean isOpen() {

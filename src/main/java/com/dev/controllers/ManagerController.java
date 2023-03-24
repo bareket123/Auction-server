@@ -3,7 +3,7 @@ package com.dev.controllers;
 import com.dev.models.OpenAuctionModel;
 import com.dev.objects.SaleOffer;
 import com.dev.objects.User;
-import com.dev.responses.AllAuctionsResponse;
+import com.dev.responses.OpenAuctionsResponse;
 import com.dev.responses.AllUsersResponse;
 import com.dev.responses.BasicResponse;
 import com.dev.utils.Constants;
@@ -42,7 +42,7 @@ public class ManagerController {
 
     }
     @RequestMapping(value = "/get-open-auction-by-token", method = RequestMethod.GET)
-    public AllAuctionsResponse getOpenAuctionByToken (String token) {
+    public OpenAuctionsResponse getOpenAuctionByToken (String token) {
         User user = persist.getUserByToken(token);
         List<OpenAuctionModel> openAuction = persist.getAuctionsByStatus(true);
         List<OpenAuctionModel> openAuctionByUser = new ArrayList<>() ;
@@ -54,7 +54,7 @@ public class ManagerController {
         }
 
         }
-        return new AllAuctionsResponse(true,null,openAuctionByUser);
+        return new OpenAuctionsResponse(true,null,openAuctionByUser);
     }
     @RequestMapping(value = "get-all-users" , method = RequestMethod.GET)
     public AllUsersResponse getAllUsers(){

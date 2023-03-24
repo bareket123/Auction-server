@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -24,7 +23,7 @@ public class Persist {
     }
 
     public User getUserByUsername(String username) {
-        User found = null;
+        User found;
         Session session = sessionFactory.openSession();
         found = (User) session.createQuery("FROM User WHERE username = :username")
                 .setParameter("username", username)
